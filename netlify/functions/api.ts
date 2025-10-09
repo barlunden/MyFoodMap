@@ -22,7 +22,14 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
   try {
     // Extract API path from Netlify function path
-    const apiPath = path?.replace('/.netlify/functions/api', '') || '/';
+    // Handle both direct function calls and redirected API calls
+    let apiPath = path?.replace('/.netlify/functions/api', '') || '/';
+    if (apiPath.startsWith('/api/')) {
+      apiPath = apiPath.replace('/api', '');
+    }
+    if (apiPath === '') {
+      apiPath = '/';
+    }
     
     // Add debug logging
     console.log('API Request:', {
