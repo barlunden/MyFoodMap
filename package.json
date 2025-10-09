@@ -9,6 +9,7 @@
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
     "build:all": "npm run build:frontend && npm run build:backend",
+    "build:netlify": "npm run install:all && cd netlify/functions && npm install && npx prisma generate --schema=./prisma/schema.prisma && cd ../../ && npm run build:frontend",
     "install:frontend": "cd frontend && npm install",
     "install:backend": "cd backend && npm install",
     "install:all": "npm run install:frontend && npm run install:backend",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@netlify/functions": "^4.2.7",
+    "astro": "^5.14.1",
     "concurrently": "^9.1.0",
     "prisma": "^5.22.0"
   }

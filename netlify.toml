@@ -1,6 +1,6 @@
 [build]
   # Frontend build command with Prisma setup
-  command = "npm install && cd netlify/functions && npm install && npx prisma generate --schema=./prisma/schema.prisma && cd ../../ && npm run build:frontend"
+  command = "npm install && npm run build:netlify"
   # Frontend build output directory 
   publish = "frontend/dist"
 
