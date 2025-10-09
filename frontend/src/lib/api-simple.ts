@@ -1,86 +1,11 @@
-// Simple API client for MyFoodMap
+// Simple API client for MyFoodMap with conditional demo mode
+import { apiClient as demoApiClient } from './api-demo';
+
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api';
 const IS_DEMO_MODE = import.meta.env.PUBLIC_DEMO_MODE === 'true';
 
 console.log('API Base URL:', API_BASE_URL);
 console.log('Demo Mode:', IS_DEMO_MODE);
-
-// Demo data for static build
-const DEMO_INGREDIENTS = [
-  {
-    id: '1',
-    name: 'Chicken Breast',
-    category: 'Protein',
-    calories: 165,
-    protein: 31,
-    carbs: 0,
-    fat: 3.6,
-    fiber: 0
-  },
-  {
-    id: '2', 
-    name: 'Brown Rice',
-    category: 'Grains',
-    calories: 123,
-    protein: 2.6,
-    carbs: 23,
-    fat: 0.9,
-    fiber: 1.8
-  },
-  {
-    id: '3',
-    name: 'Broccoli',
-    category: 'Vegetables',
-    calories: 34,
-    protein: 2.8,
-    carbs: 7,
-    fat: 0.4,
-    fiber: 2.6
-  },
-  {
-    id: '4',
-    name: 'Banana',
-    category: 'Fruits',
-    calories: 89,
-    protein: 1.1,
-    carbs: 23,
-    fat: 0.3,
-    fiber: 2.6
-  },
-  {
-    id: '5',
-    name: 'Ostepop (Cheese Puffs)',
-    category: 'Snacks',
-    calories: 520,
-    protein: 6,
-    carbs: 50,
-    fat: 32,
-    fiber: 2
-  }
-];
-
-const DEMO_RECIPES = [
-  {
-    id: '1',
-    title: 'Simple Chicken and Rice',
-    description: 'A basic ARFID-friendly meal with familiar textures',
-    servings: 2,
-    ingredients: [
-      { id: '1', amount: 200, unit: 'g' },
-      { id: '2', amount: 150, unit: 'g' }
-    ],
-    instructions: [
-      'Cook rice according to package instructions',
-      'Season chicken breast with salt',
-      'Cook chicken in pan until done',
-      'Serve together'
-    ],
-    prepTime: 10,
-    cookTime: 25,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
 
 export interface Recipe {
   id: string;
@@ -183,10 +108,10 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    // Use demo data if in demo mode
+    // Use demo client in demo mode
     if (IS_DEMO_MODE) {
-      console.log('Using demo data for:', endpoint);
-      return this.getDemoData(endpoint, options);
+      console.log('Using demo API client for:', endpoint);
+      return this.routeToDemoClient(endpoint, options);
     }
 
     const url = `${this.baseUrl}${endpoint}`;
@@ -213,41 +138,35 @@ class ApiClient {
     return data;
   }
 
-  private getDemoData<T>(endpoint: string, options: RequestInit = {}): T {
-    const [, resource, id] = endpoint.split('/');
+  private async routeToDemoClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    // Route to appropriate demo method based on endpoint
+    const [, resource, id, action] = endpoint.split('/');
     const method = options.method || 'GET';
     
     if (endpoint === '/health') {
       return { status: 'OK', timestamp: new Date().toISOString() } as T;
     }
 
-    // Mock delay for realistic feel
-    setTimeout(() => {}, 200);
-
     switch (resource) {
       case 'recipes':
-        if (method === 'GET' && !id) return DEMO_RECIPES as T;
-        if (method === 'GET' && id) return DEMO_RECIPES.find(r => r.id === id) as T;
-        if (method === 'POST') {
-          const newRecipe = { ...JSON.parse(options.body as string), id: Date.now().toString() };
-          return newRecipe as T;
-        }
-        return DEMO_RECIPES as T;
-        
+        if (method === 'GET' && !id) return demoApiClient.getRecipes();
+        if (method === 'GET' && id) return demoApiClient.getRecipe(id);
+        if (method === 'POST') return demoApiClient.createRecipe(JSON.parse(options.body as string));
+        if (action === 'search') return demoApiClient.searchRecipes('');
+        break;
       case 'ingredients':
-        if (method === 'GET' && !id) return DEMO_INGREDIENTS as T;
-        if (method === 'POST') {
-          const newIngredient = { ...JSON.parse(options.body as string), id: Date.now().toString() };
-          return newIngredient as T;
-        }
-        return DEMO_INGREDIENTS as T;
-        
+        if (method === 'GET' && !id) return demoApiClient.getIngredients();
+        if (method === 'POST') return demoApiClient.createIngredient(JSON.parse(options.body as string));
+        if (method === 'PUT') return demoApiClient.updateIngredient(id, JSON.parse(options.body as string));
+        if (method === 'DELETE') return demoApiClient.deleteIngredient(id);
+        break;
       case 'auth':
-        return { user: { id: '1', email: 'demo@example.com', name: 'Demo User' }, token: 'demo-token' } as T;
-        
-      default:
-        return [] as T;
+        if (action === 'register') return demoApiClient.register(JSON.parse(options.body as string));
+        if (action === 'login') return demoApiClient.login(JSON.parse(options.body as string));
+        break;
     }
+    
+    throw new Error(`Demo API: Endpoint not implemented: ${endpoint}`);
   }
 
   // Recipe endpoints
