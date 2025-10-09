@@ -247,6 +247,70 @@ class ApiClient {
     }
   }
 
+  // Authentication endpoints
+  async login(email: string, password: string): Promise<{ user: any; token: string }> {
+    if (IS_DEMO_MODE) {
+      // Demo mode - always succeed with demo user
+      const demoAuth = { 
+        user: { id: '1', email: email, name: 'Demo User' }, 
+        token: 'demo-token' 
+      };
+      // Store demo token for subsequent requests
+      localStorage.setItem('demo-token', 'demo-token');
+      localStorage.setItem('demo-user', JSON.stringify(demoAuth.user));
+      return demoAuth;
+    }
+    
+    return this.request<{ user: any; token: string }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  async register(email: string, password: string, name: string): Promise<{ user: any; token: string }> {
+    if (IS_DEMO_MODE) {
+      // Demo mode - always succeed with demo user
+      const demoAuth = { 
+        user: { id: '1', email: email, name: name || 'Demo User' }, 
+        token: 'demo-token' 
+      };
+      // Store demo token for subsequent requests
+      localStorage.setItem('demo-token', 'demo-token');
+      localStorage.setItem('demo-user', JSON.stringify(demoAuth.user));
+      return demoAuth;
+    }
+    
+    return this.request<{ user: any; token: string }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, name }),
+    });
+  }
+
+  async logout(): Promise<void> {
+    if (IS_DEMO_MODE) {
+      // Demo mode - just clear local storage
+      localStorage.removeItem('demo-token');
+      localStorage.removeItem('demo-user');
+      return;
+    }
+    
+    await this.request<void>('/auth/logout', {
+      method: 'POST',
+    });
+  }
+
+  async getCurrentUser(): Promise<any> {
+    if (IS_DEMO_MODE) {
+      const demoUser = localStorage.getItem('demo-user');
+      if (demoUser) {
+        return JSON.parse(demoUser);
+      }
+      return null;
+    }
+    
+    return this.request<any>('/auth/me');
+  }
+
   // Recipe endpoints
   async getRecipes(params: SearchParams = {}): Promise<Recipe[]> {
     const searchParams = new URLSearchParams();
