@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RecipeDetail from '../../components/RecipeDetail';
+
+// For static generation, define available paths
+export async function getStaticPaths() {
+  // Since we're using demo mode, we'll generate a few demo recipe IDs
+  return [
+    { params: { id: '1' } },
+    { params: { id: '2' } },
+    { params: { id: '3' } }
+  ];
+}
+
+// Get the recipe ID from the URL parameters
+const { id } = Astro.params;
+
+// Handle case where ID is not provided
+if (!id) {
+  return Astro.redirect('/recipes');
+}
+---
+
+<Layout title="Recipe Details - MyFoodMap">
+	<RecipeDetail client:load recipeId={id} />
+</Layout>

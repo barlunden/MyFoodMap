@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SafeRecipeCreateForm from '../components/SafeRecipeCreateForm';
+---
+
+<Layout title="Create New Recipe - MyFoodMap">
+	<main class="container mx-auto px-4 py-8">
+		<SafeRecipeCreateForm 
+			client:load
+			onSave={(recipe) => {
+				console.log('Recipe created:', recipe);
+				// In a real app, this would save to the backend
+				// and redirect to the new recipe page
+			}}
+			onCancel={() => {
+				// Navigate back to recipes or previous page
+				window.history.back();
+			}}
+		/>
+	</main>
+</Layout>

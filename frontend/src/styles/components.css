@@ -1,0 +1,94 @@
+/* Custom styles for Recipe Card components */
+
+/* Range slider styling */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  border: none;
+}
+
+.slider::-webkit-slider-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #e5e7eb;
+}
+
+.slider::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  border: none;
+}
+
+/* Text line clamping */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hover effects for recipe cards */
+.recipe-card {
+  transition: all 0.3s ease;
+}
+
+.recipe-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Ingredient category colors */
+.ingredient-protein {
+  @apply bg-red-100 text-red-700;
+}
+
+.ingredient-vegetable {
+  @apply bg-green-100 text-green-700;
+}
+
+.ingredient-grain {
+  @apply bg-yellow-100 text-yellow-700;
+}
+
+.ingredient-dairy {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.ingredient-fruit {
+  @apply bg-purple-100 text-purple-700;
+}
+
+.ingredient-seasoning {
+  @apply bg-gray-100 text-gray-700;
+}
+
+/* Nutrition badges */
+.nutrition-badge {
+  @apply px-2 py-1 rounded-full text-xs font-medium;
+}
+
+/* Kitchen mode button special styling */
+.kitchen-mode-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+}
+
+.kitchen-mode-btn:hover {
+  box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.4);
+}

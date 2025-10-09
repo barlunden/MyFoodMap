@@ -1,0 +1,69 @@
+---
+import SafeHeader from '../components/SafeHeader.tsx';
+
+export interface Props {
+	title: string;
+	showSearch?: boolean;
+}
+
+const { title, showSearch = true } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="MyFoodMap - A personalized recipe and nutrition app for picky eaters and ARFID families" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<style>
+			/* Component-specific styles */
+			.line-clamp-2 {
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+			}
+			
+			.slider::-webkit-slider-thumb {
+				appearance: none;
+				height: 20px;
+				width: 20px;
+				border-radius: 50%;
+				background: #10b981;
+				border: 2px solid #ffffff;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+				cursor: pointer;
+			}
+			
+			.slider::-webkit-slider-track {
+				height: 8px;
+				border-radius: 4px;
+				background: #e5e7eb;
+			}
+			
+			.kitchen-mode-btn {
+				background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+				box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+			}
+			
+			.kitchen-mode-btn:hover {
+				box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.4);
+			}
+		</style>
+	</head>
+	<body class="bg-gray-50 min-h-screen">
+		<SafeHeader client:only="react" showSearch={showSearch} />
+		
+		<slot />
+		
+		<footer class="bg-white border-t mt-auto">
+			<div class="container mx-auto px-4 py-6 text-center text-gray-600">
+				<p>&copy; 2025 MyFoodMap. A personalized recipe and nutrition app for picky eaters and ARFID families.</p>
+			</div>
+		</footer>
+	</body>
+</html>

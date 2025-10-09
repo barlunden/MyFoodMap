@@ -1,0 +1,20 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SafeRecipeCreateForm from '../../components/SafeRecipeCreateForm';
+---
+
+<Layout title="Add Recipe - MyFoodMap">
+	<main class="container mx-auto px-4 py-8">
+		<div class="mb-8">
+			<h1 class="text-4xl font-bold text-gray-900 mb-4">Create New Recipe</h1>
+			<p class="text-xl text-gray-600 max-w-2xl">
+				Add a new recipe to your collection with smart scaling and nutrition tracking.
+			</p>
+		</div>
+		
+		<SafeRecipeCreateForm 
+			client:only="react"
+			onCancel={() => window.location.href = '/recipes'}
+		/>
+	</main>
+</Layout>

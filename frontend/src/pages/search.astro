@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SearchResults from '../components/SearchResults';
+
+// Get search parameters from URL
+const url = Astro.url;
+const searchParams = url.searchParams;
+const query = searchParams.get('q') || '';
+---
+
+<Layout title={`Search Results${query ? ` for "${query}"` : ''} - MyFoodMap`}>
+	<main class="container mx-auto px-4 py-8">
+		<div class="mb-8">
+			<h1 class="text-4xl font-bold text-gray-900 mb-4">
+				Search Results
+				{query && <span class="text-gray-600 font-normal"> for "{query}"</span>}
+			</h1>
+			<p class="text-xl text-gray-600 max-w-2xl">
+				Find recipes that match your search criteria and dietary preferences.
+			</p>
+		</div>
+		
+		<SearchResults client:load query={query} searchParams={Object.fromEntries(searchParams)} />
+	</main>
+</Layout>

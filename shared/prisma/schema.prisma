@@ -1,0 +1,225 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String?  @unique
+  name      String?
+  password  String
+  bio       String?
+  avatar    String?
+  
+  // ARFID-specific preferences
+  dietaryPreferences String? // JSON string of dietary restrictions
+  arfidConsiderations String? // ARFID-specific notes and preferences
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recipes   Recipe[]
+  favorites RecipeFavorite[]
+  followers Follow[] @relation("UserFollowers")
+  following Follow[] @relation("UserFollowing")
+  
+  // ARFID Support Features
+  safeFoods    SafeFood[]
+  mealLogs     MealLog[]
+  lockdownLogs LockdownLog[]
+
+  @@map("users")
+}
+
+model Recipe {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  instructions String  // JSON string of step-by-step instructions for kitchen mode
+  servings     Int      @default(1)
+  prepTime     Int?     // minutes
+  cookTime     Int?     // minutes
+  difficulty   String?  // "Easy", "Medium", "Hard"
+  
+  // Privacy and sharing
+  visibility   String   @default("PUBLIC") // "PUBLIC", "PRIVATE", "FRIENDS_ONLY"
+  isFeatured   Boolean  @default(false)
+  
+  // ARFID-specific fields
+  isArfidFriendly Boolean @default(false)
+  arfidNotes      String? // Texture, sensory notes
+  
+  // Recipe scaling
+  scalingKeyIngredientId String? // Which ingredient to use as scaling base
+  
+  // Tags for filtering and search
+  tags         String? // JSON string of tags like "gluten-free", "dairy-free"
+  
+  // Recipe timers - JSON string of recipe-specific timers
+  recipeTimers String? // JSON string: [{"name": "Boil eggs", "minutes": 5, "stepIndex": 2}]
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredients RecipeIngredient[]
+  favorites   RecipeFavorite[]
+
+  @@map("recipes")
+}
+
+model RecipeIngredient {
+  id       String @id @default(cuid())
+  amount   Float
+  unit     String
+  notes    String? // Optional notes like "room temperature", "finely chopped"
+  brand    String? // Specific brand requirements
+  isOptional Boolean @default(false) // Whether ingredient is optional
+  order    Int     @default(0) // For displaying ingredients in order
+
+  recipeId     String
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@map("recipe_ingredients")
+}
+
+model Ingredient {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  category    String? // "protein", "vegetable", "grain", etc.
+  
+  // Nutritional data per 100g
+  calories    Float?
+  protein     Float? // grams
+  carbs       Float? // grams
+  fat         Float? // grams
+  fiber       Float? // grams
+  sugar       Float? // grams
+  sodium      Float? // milligrams
+  
+  // Micronutrients (per 100g)
+  vitaminA    Float? // mcg
+  vitaminC    Float? // mg
+  vitaminD    Float? // mcg
+  calcium     Float? // mg
+  iron        Float? // mg
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recipeIngredients RecipeIngredient[]
+
+  @@map("ingredients")
+}
+
+// Recipe favorites
+model RecipeFavorite {
+  id       String @id @default(cuid())
+  userId   String
+  recipeId String
+  
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, recipeId])
+  @@map("recipe_favorites")
+}
+
+// User following system
+model Follow {
+  id          String @id @default(cuid())
+  followerId  String
+  followingId String
+  
+  follower    User   @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User   @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+// ARFID Support Features
+
+// Safe Foods Management
+model SafeFood {
+  id                 String   @id @default(cuid())
+  userId             String
+  foodName           String
+  dateFirstAccepted  DateTime // Important milestone for ARFID families
+  category           String?  // "protein", "carb", "fruit", "vegetable", "dairy", "snack"
+  preparationNotes   String?  // How the food must be prepared
+  brandPreference    String?  // Specific brands that work
+  textureNotes       String?  // Texture requirements/preferences
+  photoUrl           String?  // Visual reference
+  isActive           Boolean  @default(true)
+  notes              String?  // General notes about this food
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealLogs MealLog[]
+  
+  @@map("safe_foods")
+}
+
+// Meal Logging
+model MealLog {
+  id               String   @id @default(cuid())
+  userId           String
+  safeFoodId       String
+  mealDate         DateTime
+  mealType         String   // "breakfast", "lunch", "dinner", "snack"
+  portionEaten     String   // "all", "most", "half", "few-bites", "none"
+  energyBefore     Int?     // 1-5 scale
+  energyAfter      Int?     // 1-5 scale
+  location         String?  // "home", "school", "restaurant", etc.
+  successFactors   String?  // What helped make this meal successful
+  notes            String?
+  
+  createdAt DateTime @default(now())
+  
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  safeFood SafeFood @relation(fields: [safeFoodId], references: [id], onDelete: Cascade)
+  
+  @@map("meal_logs")
+}
+
+// Lockdown/Challenge Episode Logging
+model LockdownLog {
+  id                      String   @id @default(cuid())
+  userId                  String
+  incidentDate            DateTime
+  incidentTime            String   // Store as string for flexibility
+  durationMinutes         Int?
+  energyLevelBefore       Int?     // 1-5 scale
+  triggers                String?  // What preceded the episode
+  behaviorsObserved       String?  // What happened during
+  resolutionStrategy      String?  // What helped resolve it
+  resolutionTimeMinutes   Int?     // How long resolution took
+  familyImpactLevel       Int?     // 1-5 scale - impact on family
+  notes                   String?
+  lessonsLearned          String?  // What to try next time
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("lockdown_logs")
+}

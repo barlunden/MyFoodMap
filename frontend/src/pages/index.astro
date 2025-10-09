@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SafeRecipeList from '../components/SafeRecipeList';
+import FeaturedRecipeWithData from '../components/FeaturedRecipeWithData';
+---
+
+<Layout title="MyFoodMap - A personalized recipe and nutrition app for picky eaters and ARFID families" showSearch={true}>
+	<main>
+		<!-- Hero Section with Featured Recipe -->
+		<section class="container mx-auto px-4 py-8">
+			<FeaturedRecipeWithData client:load />
+		</section>
+
+		<!-- Features Section -->
+		<section class="bg-white py-16">
+			<div class="container mx-auto px-4">
+				<div class="text-center mb-12">
+					<h2 class="text-3xl font-bold text-gray-900 mb-4">Why MyFoodMap?</h2>
+					<p class="text-xl text-gray-600 max-w-2xl mx-auto">
+						A personalized recipe and nutrition app designed specifically for picky eaters and ARFID families, 
+						with smart scaling and transparent nutrition tracking.
+					</p>
+				</div>
+				
+				<div class="grid md:grid-cols-3 gap-8">
+					<div class="text-center">
+						<div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+							<svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21l3-3-3-3m0 0l3-3m-3 3h11M3 4h18M5 8h14M7 12h10" />
+							</svg>
+						</div>
+						<h3 class="text-xl font-semibold mb-3">Smart Recipe Scaling</h3>
+						<p class="text-gray-600">
+							Select any ingredient as your scaling base and automatically 
+							adjust all other ingredients proportionally with perfect ratios.
+						</p>
+					</div>
+					
+					<div class="text-center">
+						<div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+							<svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+							</svg>
+						</div>
+						<h3 class="text-xl font-semibold mb-3">Nutritional Transparency</h3>
+						<p class="text-gray-600">
+							Complete nutrition breakdown per serving with support for 
+							ARFID dietary tracking and medical sharing.
+						</p>
+					</div>
+					
+					<div class="text-center">
+						<div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+							<svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+							</svg>
+						</div>
+						<h3 class="text-xl font-semibold mb-3">ARFID-Friendly</h3>
+						<p class="text-gray-600">
+							Sensory-friendly recipes with clear ingredient lists, 
+							texture descriptions, and safe food exploration.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Recent Recipes Section -->
+		<section class="container mx-auto px-4 py-16">
+			<div class="text-center mb-8">
+				<h2 class="text-3xl font-bold text-gray-900 mb-4">Popular Recipes</h2>
+				<p class="text-xl text-gray-600">
+					Discover community favorites and ARFID-friendly recipes
+				</p>
+			</div>
+			<SafeRecipeList client:load />
+		</section>
+	</main>
+</Layout>

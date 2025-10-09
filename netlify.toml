@@ -1,0 +1,21 @@
+[build]
+  # Frontend build command - start with frontend only
+  command = "cd frontend && npm install && npm run build"
+  # Frontend build output directory 
+  publish = "frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Handle client-side routing (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[dev]
+  # For local development
+  command = "cd frontend && npm run dev"
+  targetPort = 4321
+  port = 8888
+  publish = "frontend/dist"
