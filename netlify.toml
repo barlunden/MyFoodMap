@@ -14,10 +14,10 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# Handle client-side routing (SPA)
+# Handle API routing to Netlify Functions
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  to = "/.netlify/functions/api/:splat"
   status = 200
 
 [[redirects]]
