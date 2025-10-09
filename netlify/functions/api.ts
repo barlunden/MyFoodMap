@@ -28,6 +28,14 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     // Extract API path from Netlify function path
     const apiPath = path?.replace('/.netlify/functions/api', '') || '/';
     
+    // Add debug logging
+    console.log('Request details:', {
+      httpMethod,
+      path,
+      apiPath,
+      body: body ? JSON.parse(body) : null
+    });
+    
     // Health check endpoint
     if (apiPath === '/health' && httpMethod === 'GET') {
       return {
@@ -51,16 +59,13 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
           where: { email: email }
         });
         
-        if (!user) {
+        if (!user || user.password !== password) { // In a real app, use bcrypt.compare()
           return {
             statusCode: 401,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Invalid credentials' }),
           };
         }
-        
-        // In a real app, you would verify password hash here
-        // For demo, accept any password
         
         return {
           statusCode: 200,
@@ -106,7 +111,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
           data: {
             email: email,
             name: name || 'User',
-            // In a real app, you would hash the password here
+            password: password, // In a real app, you would hash the password here
           }
         });
         
@@ -268,7 +273,15 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       body: JSON.stringify({ 
         error: 'Not found',
         path: apiPath,
-        method: httpMethod
+        method: httpMethod,
+        availableEndpoints: [
+          'GET /health',
+          'POST /auth/login', 
+          'POST /auth/register',
+          'GET /recipes',
+          'GET /recipes/:id',
+          'GET /recipes/search'
+        ]
       }),
     };
 
