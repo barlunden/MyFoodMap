@@ -1,6 +1,16 @@
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 
-// Simple API handler for Netlify Functions - simplified for debugging
+// Try to import Prisma - fallback to demo mode if it fails
+let prisma: any = null;
+try {
+  const { PrismaClient } = require('@prisma/client');
+  prisma = new PrismaClient();
+  console.log('Prisma client initialized successfully');
+} catch (error) {
+  console.log('Prisma client failed to initialize, falling back to demo mode:', error);
+}
+
+// Simple API handler for Netlify Functions
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   const { httpMethod, path, queryStringParameters, body, headers } = event;
   
@@ -42,6 +52,21 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     
     // Health check endpoint
     if (apiPath === '/health' && httpMethod === 'GET') {
+      // Test database connection
+      let dbStatus = 'disconnected';
+      let dbError = null;
+      
+      if (prisma) {
+        try {
+          // Simple query to test connection
+          await prisma.$queryRaw`SELECT 1`;
+          dbStatus = 'connected';
+        } catch (error) {
+          dbStatus = 'error';
+          dbError = error instanceof Error ? error.message : 'Unknown database error';
+        }
+      }
+      
       return {
         statusCode: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -49,6 +74,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
           status: 'ok',
           timestamp: new Date().toISOString(),
           message: 'Netlify Functions API is running',
+          database: dbStatus,
+          databaseError: dbError,
           debug: { apiPath, httpMethod }
         }),
       };

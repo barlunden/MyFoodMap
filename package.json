@@ -26,5 +26,8 @@
     "astro": "^5.14.1",
     "concurrently": "^9.1.0",
     "prisma": "^5.22.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
   }
 }
