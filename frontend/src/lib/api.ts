@@ -9,6 +9,7 @@ const API_BASE_URL = IS_PRODUCTION
 
 console.log('API Base URL:', API_BASE_URL);
 console.log('Demo Mode:', IS_DEMO_MODE);
+console.log('Production Mode:', IS_PRODUCTION);
 
 // Demo data for static build
 const DEMO_INGREDIENTS = [
@@ -188,8 +189,8 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    // Use demo data if in demo mode
-    if (IS_DEMO_MODE) {
+    // Use demo data if in demo mode AND not in production
+    if (IS_DEMO_MODE && !IS_PRODUCTION) {
       console.log('Using demo data for:', endpoint);
       return this.getDemoData(endpoint, options);
     }
@@ -254,7 +255,7 @@ class ApiClient {
 
   // Authentication endpoints
   async login(email: string, password: string): Promise<{ user: any; token: string }> {
-    if (IS_DEMO_MODE) {
+    if (IS_DEMO_MODE && !IS_PRODUCTION) {
       // Demo mode - always succeed with demo user
       const demoAuth = { 
         user: { id: '1', email: email, name: 'Demo User' }, 
@@ -273,7 +274,7 @@ class ApiClient {
   }
 
   async register(email: string, password: string, name: string): Promise<{ user: any; token: string }> {
-    if (IS_DEMO_MODE) {
+    if (IS_DEMO_MODE && !IS_PRODUCTION) {
       // Demo mode - always succeed with demo user
       const demoAuth = { 
         user: { id: '1', email: email, name: name || 'Demo User' }, 
@@ -292,7 +293,7 @@ class ApiClient {
   }
 
   async logout(): Promise<void> {
-    if (IS_DEMO_MODE) {
+    if (IS_DEMO_MODE && !IS_PRODUCTION) {
       // Demo mode - just clear local storage
       localStorage.removeItem('demo-token');
       localStorage.removeItem('demo-user');
@@ -305,7 +306,7 @@ class ApiClient {
   }
 
   async getCurrentUser(): Promise<any> {
-    if (IS_DEMO_MODE) {
+    if (IS_DEMO_MODE && !IS_PRODUCTION) {
       const demoUser = localStorage.getItem('demo-user');
       if (demoUser) {
         return JSON.parse(demoUser);
