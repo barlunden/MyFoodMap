@@ -1,10 +1,6 @@
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
-import { PrismaClient } from '@prisma/client';
 
-// Initialize Prisma Client
-const prisma = new PrismaClient();
-
-// Simple API handler for Netlify Functions
+// Simple API handler for Netlify Functions - simplified for debugging
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   const { httpMethod, path, queryStringParameters, body, headers } = event;
   
@@ -29,11 +25,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     const apiPath = path?.replace('/.netlify/functions/api', '') || '/';
     
     // Add debug logging
-    console.log('Request details:', {
+    console.log('API Request:', {
       httpMethod,
       path,
       apiPath,
-      body: body ? JSON.parse(body) : null
+      body: body ? body : null,
+      headers
     });
     
     // Health check endpoint
@@ -44,226 +41,89 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
         body: JSON.stringify({
           status: 'ok',
           timestamp: new Date().toISOString(),
-          message: 'Netlify Functions API is running'
+          message: 'Netlify Functions API is running',
+          debug: { apiPath, httpMethod }
         }),
       };
     }
 
-    // Auth endpoints
-    if (apiPath === '/auth/login' && httpMethod === 'POST') {
-      const { email, password } = JSON.parse(body || '{}');
-      
-      try {
-        // Find user by email
-        const user = await prisma.user.findUnique({
-          where: { email: email }
-        });
-        
-        if (!user || user.password !== password) { // In a real app, use bcrypt.compare()
-          return {
-            statusCode: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Invalid credentials' }),
-          };
-        }
-        
-        return {
-          statusCode: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user: {
-              id: user.id,
-              email: user.email,
-              name: user.name
-            },
-            token: `netlify-token-${user.id}`
-          }),
-        };
-      } catch (error) {
-        console.error('Login error:', error);
-        return {
-          statusCode: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ error: 'Database error' }),
-        };
-      }
-    }
-
+    // Simple auth endpoints without database for testing
     if (apiPath === '/auth/register' && httpMethod === 'POST') {
-      const { email, password, name } = JSON.parse(body || '{}');
+      console.log('Register request received:', body);
       
       try {
-        // Check if user already exists
-        const existingUser = await prisma.user.findUnique({
-          where: { email: email }
-        });
+        const { email, password, name } = JSON.parse(body || '{}');
         
-        if (existingUser) {
-          return {
-            statusCode: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'User already exists' }),
-          };
-        }
-        
-        // Create new user
-        const user = await prisma.user.create({
-          data: {
-            email: email,
-            name: name || 'User',
-            password: password, // In a real app, you would hash the password here
-          }
-        });
-        
+        // Just return success for testing - no database yet
         return {
           statusCode: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             user: {
-              id: user.id,
-              email: user.email,
-              name: user.name
+              id: 'test-user-' + Date.now(),
+              email: email,
+              name: name || 'Test User'
             },
-            token: `netlify-token-${user.id}`
+            token: 'test-token-' + Date.now(),
+            message: 'Registration successful (demo mode)'
           }),
         };
-      } catch (error) {
-        console.error('Registration error:', error);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
         return {
-          statusCode: 500,
+          statusCode: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ error: 'Database error' }),
+          body: JSON.stringify({ error: 'Invalid JSON in request body' }),
         };
       }
     }
 
-    // Recipe endpoints - get from database
-    if (apiPath.startsWith('/recipes')) {
-      if (apiPath === '/recipes' && httpMethod === 'GET') {
-        try {
-          const recipes = await prisma.recipe.findMany({
-            include: {
-              user: {
-                select: { id: true, name: true, username: true }
-              },
-              ingredients: {
-                include: {
-                  ingredient: true
-                },
-                orderBy: { order: 'asc' }
-              },
-              _count: {
-                select: { favorites: true }
-              }
-            },
-            orderBy: { createdAt: 'desc' }
-          });
-          
-          return {
-            statusCode: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify(recipes),
-          };
-        } catch (error) {
-          console.error('Error fetching recipes:', error);
-          return {
-            statusCode: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Database error' }),
-          };
-        }
-      }
-
-      // Get single recipe
-      const recipeIdMatch = apiPath.match(/^\/recipes\/(\w+)$/);
-      if (recipeIdMatch && httpMethod === 'GET') {
-        const recipeId = recipeIdMatch[1];
+    if (apiPath === '/auth/login' && httpMethod === 'POST') {
+      console.log('Login request received:', body);
+      
+      try {
+        const { email, password } = JSON.parse(body || '{}');
         
-        try {
-          const recipe = await prisma.recipe.findUnique({
-            where: { id: recipeId },
-            include: {
-              user: {
-                select: { id: true, name: true, username: true }
-              },
-              ingredients: {
-                include: {
-                  ingredient: true
-                },
-                orderBy: { order: 'asc' }
-              },
-              _count: {
-                select: { favorites: true }
-              }
-            }
-          });
-          
-          if (recipe) {
-            return {
-              statusCode: 200,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              body: JSON.stringify(recipe),
-            };
-          } else {
-            return {
-              statusCode: 404,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ error: 'Recipe not found' }),
-            };
+        // Just return success for testing - no database yet
+        return {
+          statusCode: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user: {
+              id: 'test-user-' + Date.now(),
+              email: email,
+              name: 'Test User'
+            },
+            token: 'test-token-' + Date.now(),
+            message: 'Login successful (demo mode)'
+          }),
+        };
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        return {
+          statusCode: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: 'Invalid JSON in request body' }),
+        };
+      }
+    }
+
+    // Simple recipes endpoint
+    if (apiPath === '/recipes' && httpMethod === 'GET') {
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify([
+          {
+            id: '1',
+            title: 'Demo Recipe',
+            description: 'A simple demo recipe from Netlify Functions',
+            servings: 2,
+            instructions: '["Mix ingredients", "Cook for 10 minutes"]',
+            tags: '["demo", "simple"]'
           }
-        } catch (error) {
-          console.error('Error fetching recipe:', error);
-          return {
-            statusCode: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Database error' }),
-          };
-        }
-      }
-
-      // Search recipes
-      if (apiPath === '/recipes/search' && httpMethod === 'GET') {
-        const query = queryStringParameters?.q?.toLowerCase() || '';
-        
-        try {
-          const recipes = await prisma.recipe.findMany({
-            where: {
-              OR: [
-                { title: { contains: query, mode: 'insensitive' } },
-                { description: { contains: query, mode: 'insensitive' } }
-              ]
-            },
-            include: {
-              user: {
-                select: { id: true, name: true, username: true }
-              },
-              ingredients: {
-                include: {
-                  ingredient: true
-                },
-                orderBy: { order: 'asc' }
-              },
-              _count: {
-                select: { favorites: true }
-              }
-            },
-            orderBy: { createdAt: 'desc' }
-          });
-          
-          return {
-            statusCode: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify(recipes),
-          };
-        } catch (error) {
-          console.error('Error searching recipes:', error);
-          return {
-            statusCode: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Database error' }),
-          };
-        }
-      }
+        ]),
+      };
     }
 
     // Default response for unhandled routes
@@ -271,16 +131,14 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       statusCode: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        error: 'Not found',
+        error: 'Endpoint not found',
         path: apiPath,
         method: httpMethod,
         availableEndpoints: [
           'GET /health',
           'POST /auth/login', 
           'POST /auth/register',
-          'GET /recipes',
-          'GET /recipes/:id',
-          'GET /recipes/search'
+          'GET /recipes'
         ]
       }),
     };
@@ -293,7 +151,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       }),
     };
   }
