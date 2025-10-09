@@ -1,13 +1,25 @@
 [build]
-  # Frontend build command - start with frontend only
-  command = "cd frontend && npm install && npm run build"
+  # Frontend build command with Prisma setup
+  command = "npm install && cd netlify/functions && npm install && npx prisma generate --schema=./prisma/schema.prisma && cd ../../ && npm run build:frontend"
   # Frontend build output directory 
   publish = "frontend/dist"
 
 [build.environment]
   NODE_VERSION = "18"
+  # Database URL for Netlify Connect - set this in Netlify dashboard
+  DATABASE_URL = "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza19qeDFCUGEweVVhQVViOHNfb0g2ZjIiLCJhcGlfa2V5IjoiMDFLNzRCUkJOWldNQ0dBMzRISlQ1Nk1HMVMiLCJ0ZW5hbnRfaWQiOiI1N2ExNjU3ZmEwNTZjMDQ2YWU2YWMxYzdiNTU3Nzg1OTE0NzE5NTI3YWRhMjVmYWZlODg2YTBmNjVlYmU3YjFiIiwiaW50ZXJuYWxfc2VjcmV0IjoiMDU0NThkY2EtMWY1Zi00ZGM0LWJiNzgtZGJhYTg4NmRjYTFlIn0.Y1neo4YcwV8lpMP9vBPwcXplox9X9JfaKPLRNrzDgPM"
+
+# Netlify Functions configuration
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 # Handle client-side routing (SPA)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

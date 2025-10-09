@@ -1,6 +1,11 @@
 // Simple API client for MyFoodMap
-const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api';
 const IS_DEMO_MODE = import.meta.env.PUBLIC_DEMO_MODE === 'true';
+const IS_PRODUCTION = import.meta.env.MODE === 'production';
+
+// Use Netlify Functions in production, local server in development
+const API_BASE_URL = IS_PRODUCTION 
+  ? '/api' // Netlify Functions
+  : (import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api');
 
 console.log('API Base URL:', API_BASE_URL);
 console.log('Demo Mode:', IS_DEMO_MODE);
