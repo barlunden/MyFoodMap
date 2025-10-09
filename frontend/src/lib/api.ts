@@ -221,9 +221,6 @@ class ApiClient {
       return { status: 'OK', timestamp: new Date().toISOString() } as T;
     }
 
-    // Mock delay for realistic feel
-    setTimeout(() => {}, 200);
-
     switch (resource) {
       case 'recipes':
         if (method === 'GET' && !id) return DEMO_RECIPES as T;
