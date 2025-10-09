@@ -49,22 +49,7 @@ const FoodDiary: React.FC = () => {
   ];
   
   // Common foods - can be populated from database later
-  const commonFoods = [
-    'Pancakes',
-    'Pasta with butter',
-    'Bread with toppings',
-    'Cereal',
-    'Yogurt',
-    'Eggs',
-    'Rice',
-    'Pizza',
-    'Meatballs',
-    'Fish sticks',
-    'Fruit',
-    'Juice',
-    'Water',
-    'Milk'
-  ];
+  // For now, we'll skip this to avoid build warnings
 
   const [newEntry, setNewEntry] = useState<FoodEntry>({
     date: selectedDate,

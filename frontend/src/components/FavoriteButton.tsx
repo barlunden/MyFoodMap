@@ -32,7 +32,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     try {
       // Call the parent handler if provided
       if (onToggleFavorite) {
-        await onToggleFavorite(recipeId, newFavoriteState);
+        onToggleFavorite(recipeId, newFavoriteState);
       }
       
       // In a real app, this would make an API call:

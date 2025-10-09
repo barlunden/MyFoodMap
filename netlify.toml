@@ -5,7 +5,7 @@
   publish = "frontend/dist"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "18.20.0"
 
 # Handle client-side routing (SPA)
 [[redirects]]
