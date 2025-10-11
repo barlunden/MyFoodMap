@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { apiClient } from '../lib/api-client';
 
 // Get API base URL from environment
 const getApiBaseUrl = () => import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api';

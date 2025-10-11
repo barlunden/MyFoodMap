@@ -1,10 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import EventLog from '../components/EventLog';
+import EventLogView from '../components/EventLogView';
 ---
 
 <Layout title="Event Log - MyFoodMap">
 	<main class="container mx-auto px-4 py-8">
-		<EventLog client:load />
+		<EventLogView client:load />
 	</main>
 </Layout>
