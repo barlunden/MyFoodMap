@@ -88,7 +88,7 @@ router.get('/search', optionalAuth, async (req, res) => {
 });
 
 // Get featured recipe
-router.get('/featured', async (req, res) => {
+router.get('/featured', async (_req, res) => {
   try {
     const featuredRecipe = await prisma.recipe.findFirst({
       where: {
@@ -218,7 +218,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
     }
     
     if (scale && scale !== '1') {
-      const scaledRecipe = scaleRecipe(recipe, parseFloat(scale as string));
+      const scaledRecipe = scaleRecipe(recipe as any, parseFloat(scale as string));
       return res.json(scaledRecipe);
     }
     
@@ -302,6 +302,205 @@ router.post('/', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error creating recipe:', error);
     res.status(500).json({ error: 'Failed to create recipe' });
+  }
+});
+
+// TEMPORARY: Create new recipe without authentication (for testing)
+router.post('/no-auth', async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      instructions,
+      servings,
+      prepTime,
+      cookTime,
+      difficulty = 'Easy',
+      visibility = 'PUBLIC',
+      isArfidFriendly = false,
+      arfidNotes,
+      ingredients = []
+    } = req.body;
+
+    console.log('Creating recipe without auth:', { title, description });
+
+    // Use a default user ID (first user in database)
+    const defaultUser = await prisma.user.findFirst();
+    if (!defaultUser) {
+      return res.status(500).json({ error: 'No default user found' });
+    }
+
+    // Process ingredients: find or create each ingredient first
+    const processedIngredients = [];
+    for (let i = 0; i < ingredients.length; i++) {
+      const ing = ingredients[i];
+      if (!ing.name || !ing.name.trim()) continue;
+
+      // Try to find existing ingredient
+      let ingredient = await prisma.ingredient.findFirst({
+        where: { name: { equals: ing.name.trim() } }
+      });
+
+      // If not found, create new ingredient
+      if (!ingredient) {
+        ingredient = await prisma.ingredient.create({
+          data: {
+            name: ing.name.trim(),
+            category: ing.category || 'other'
+          }
+        });
+      }
+
+      processedIngredients.push({
+        amount: parseFloat(ing.amount) || 1,
+        unit: ing.unit || 'cup',
+        notes: ing.notes,
+        isOptional: ing.isOptional || false,
+        order: i,
+        ingredientId: ingredient.id
+      });
+    }
+
+    const recipe = await prisma.recipe.create({
+      data: {
+        title,
+        description,
+        instructions: JSON.stringify(Array.isArray(instructions) ? instructions : [instructions || '']),
+        servings: parseInt(servings) || 4,
+        prepTime: parseInt(prepTime) || 15,
+        cookTime: parseInt(cookTime) || 30,
+        difficulty,
+        visibility,
+        isArfidFriendly,
+        arfidNotes,
+        userId: defaultUser.id,
+        ingredients: {
+          create: processedIngredients
+        }
+      },
+      include: {
+        ingredients: {
+          include: { ingredient: true }
+        },
+        user: true,
+        _count: {
+          select: {
+            favorites: true
+          }
+        }
+      }
+    });
+
+    console.log('Recipe created successfully (no auth):', recipe.id);
+    res.status(201).json(recipe);
+  } catch (error) {
+    console.error('Error creating recipe (no auth):', error);
+    res.status(500).json({ error: 'Failed to create recipe' });
+  }
+});
+
+// TEMPORARY: Update recipe without authentication (for testing)
+router.put('/no-auth/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      instructions,
+      servings,
+      prepTime,
+      cookTime,
+      difficulty = 'Easy',
+      visibility = 'PUBLIC',
+      isArfidFriendly = false,
+      arfidNotes,
+      ingredients = []
+    } = req.body;
+
+    console.log('Updating recipe without auth:', { id, title });
+
+    // Check if recipe exists
+    const existingRecipe = await prisma.recipe.findUnique({
+      where: { id },
+      include: { ingredients: true }
+    });
+
+    if (!existingRecipe) {
+      return res.status(404).json({ error: 'Recipe not found' });
+    }
+
+    // Delete existing ingredients
+    await prisma.recipeIngredient.deleteMany({
+      where: { recipeId: id }
+    });
+
+    // Process new ingredients: find or create each ingredient first
+    const processedIngredients = [];
+    for (let i = 0; i < ingredients.length; i++) {
+      const ing = ingredients[i];
+      if (!ing.name || !ing.name.trim()) continue;
+
+      // Try to find existing ingredient
+      let ingredient = await prisma.ingredient.findFirst({
+        where: { name: { equals: ing.name.trim() } }
+      });
+
+      // If not found, create new ingredient
+      if (!ingredient) {
+        ingredient = await prisma.ingredient.create({
+          data: {
+            name: ing.name.trim(),
+            category: ing.category || 'other'
+          }
+        });
+      }
+
+      processedIngredients.push({
+        amount: parseFloat(ing.amount) || 1,
+        unit: ing.unit || 'cup',
+        notes: ing.notes,
+        isOptional: ing.isOptional || false,
+        order: i,
+        ingredientId: ingredient.id
+      });
+    }
+
+    // Update the recipe
+    const updatedRecipe = await prisma.recipe.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        instructions: JSON.stringify(Array.isArray(instructions) ? instructions : [instructions || '']),
+        servings: parseInt(servings) || 4,
+        prepTime: parseInt(prepTime) || 15,
+        cookTime: parseInt(cookTime) || 30,
+        difficulty,
+        visibility,
+        isArfidFriendly,
+        arfidNotes,
+        ingredients: {
+          create: processedIngredients
+        }
+      },
+      include: {
+        ingredients: {
+          include: { ingredient: true }
+        },
+        user: true,
+        _count: {
+          select: {
+            favorites: true
+          }
+        }
+      }
+    });
+
+    console.log('Recipe updated successfully (no auth):', updatedRecipe.id);
+    res.json(updatedRecipe);
+  } catch (error) {
+    console.error('Error updating recipe (no auth):', error);
+    res.status(500).json({ error: 'Failed to update recipe' });
   }
 });
 
@@ -442,9 +641,14 @@ router.get('/favorites/mine', authenticateToken, async (req, res) => {
       // Add more fields as needed
     }
 
-    const favoritesTyped: RecipeFavorite[] = favorites;
+    const favoritesTyped: RecipeFavorite[] = favorites as any;
 
-    res.json(favoritesTyped.map((fav: RecipeFavorite) => fav.recipe));
+    res.json(favoritesTyped.map((fav: RecipeFavorite) => ({
+      ...fav.recipe,
+      instructions: Array.isArray(fav.recipe.instructions) 
+        ? fav.recipe.instructions 
+        : JSON.parse(fav.recipe.instructions || '[]')
+    })));
   } catch (error) {
     console.error('Error fetching favorite recipes:', error);
     res.status(500).json({ error: 'Failed to fetch favorite recipes' });

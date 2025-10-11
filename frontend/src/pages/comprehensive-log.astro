@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Event Log - ARFID Tracker">
+  <div id="event-log" class="max-w-6xl mx-auto px-4 py-8">
+    <!-- This will be hydrated by React component -->
+  </div>
+</Layout>
+
+<script>
+  import EventLogWithAdd from '../components/EventLogWithAdd';
+  import { createRoot } from 'react-dom/client';
+  import React from 'react';
+
+  const container = document.getElementById('event-log');
+  if (container) {
+    const root = createRoot(container);
+    root.render(React.createElement(EventLogWithAdd));
+  }
+</script>
+
+<style>
+  /* Component styles are handled by the React component and Tailwind */
+  #event-log {
+    min-height: 60vh;
+  }
+</style>

@@ -13,10 +13,10 @@
     "install:frontend": "cd frontend && npm install",
     "install:backend": "cd backend && npm install",
     "install:all": "npm run install:frontend && npm run install:backend",
-    "db:migrate": "prisma migrate dev --schema=./shared/prisma/schema.prisma",
-    "db:studio": "prisma studio --schema=./shared/prisma/schema.prisma",
-    "db:generate": "prisma generate --schema=./shared/prisma/schema.prisma",
-    "db:reset": "prisma migrate reset --force --schema=./shared/prisma/schema.prisma"
+    "db:migrate": "prisma migrate dev --schema=./shared/prisma/schema-sqlite.prisma",
+    "db:studio": "prisma studio --schema=./shared/prisma/schema-sqlite.prisma",
+    "db:generate": "prisma generate --schema=./shared/prisma/schema-sqlite.prisma",
+    "db:reset": "prisma migrate reset --force --schema=./shared/prisma/schema-sqlite.prisma"
   },
   "prisma": {
     "seed": "tsx shared/prisma/seed.ts"
@@ -28,6 +28,12 @@
     "prisma": "^5.22.0"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0"
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }

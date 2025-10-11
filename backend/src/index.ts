@@ -14,6 +14,7 @@ import userRoutes from './routes/users.js';
 import safeFoodRoutes from './routes/safeFoods.js';
 import mealLogRoutes from './routes/mealLogs.js';
 import lockdownLogRoutes from './routes/lockdownLogs.js';
+import logsRoutes from './routes/logs.js';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -42,6 +43,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/safe-foods', safeFoodRoutes);
 app.use('/api/meal-logs', mealLogRoutes);
 app.use('/api/lockdown-logs', lockdownLogRoutes);
+app.use('/api/logs', logsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

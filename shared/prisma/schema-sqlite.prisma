@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -180,11 +180,10 @@ model SafeFood {
 model MealLog {
   id               String   @id @default(cuid())
   userId           String
-  safeFoodId       String?   // Made optional
+  safeFoodId       String
   mealDate         DateTime
   mealType         String   // "breakfast", "lunch", "dinner", "snack"
   portionEaten     String   // "all", "most", "half", "few-bites", "none"
-  weightGrams      Float?   // Weight of food portion in grams
   energyBefore     Int?     // 1-5 scale
   energyAfter      Int?     // 1-5 scale
   location         String?  // "home", "school", "restaurant", etc.
@@ -193,8 +192,8 @@ model MealLog {
   
   createdAt DateTime @default(now())
   
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  safeFood SafeFood? @relation(fields: [safeFoodId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  safeFood SafeFood @relation(fields: [safeFoodId], references: [id], onDelete: Cascade)
   
   @@map("meal_logs")
 }

@@ -50,8 +50,8 @@ function HeaderWithAuth({ showSearch }: { showSearch?: boolean }) {
             <a href="/nutrition" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
               Nutrition
             </a>
-            <a href="/ingredients" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-              Ingredients
+            <a href="/comprehensive-log" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+              📋 Event Log
             </a>
             {isAuthenticated && (
               <>
@@ -133,11 +133,11 @@ function HeaderWithAuth({ showSearch }: { showSearch?: boolean }) {
               Nutrition
             </a>
             <a 
-              href="/ingredients" 
+              href="/comprehensive-log" 
               className="block text-gray-600 hover:text-gray-900 font-medium py-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              Ingredients
+              📋 Event Log
             </a>
             {isAuthenticated && (
               <>

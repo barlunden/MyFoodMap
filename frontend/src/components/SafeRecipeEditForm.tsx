@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import RecipePrivacySelector from './RecipePrivacySelector.tsx';
-import { apiClient, type CreateRecipePayload } from '../lib/api';
+import { apiClient } from '../lib/api-client';
 
 interface Ingredient {
   id: string;
@@ -30,20 +30,19 @@ interface RecipeFormData {
   arfidNotes?: string;
 }
 
-interface RecipeCreateFormProps {
+interface RecipeEditFormProps {
+  recipeId: string;
   onSave?: (recipe: RecipeFormData) => void;
   onCancel?: () => void;
-  initialData?: Partial<RecipeFormData>;
 }
 
-const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
+const RecipeEditFormInner: React.FC<RecipeEditFormProps> = ({
+  recipeId,
   onSave,
-  onCancel,
-  initialData
+  onCancel
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
   
-  // All hooks must be called before any conditional returns
   const [formData, setFormData] = useState<RecipeFormData>({
     title: '',
     description: '',
@@ -52,55 +51,81 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
     cookTime: 30,
     difficulty: 'Easy',
     visibility: 'PUBLIC',
-    ingredients: [{ id: '1', amount: 1, unit: 'cup', name: '', category: 'other' }],
-    instructions: [''],
+    ingredients: [],
+    instructions: [],
     tags: [],
     isArfidFriendly: false,
-    ...initialData
   });
 
   const [currentTag, setCurrentTag] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading2, setIsLoading2] = useState(true);
   const [submitError, setSubmitError] = useState<string | null>(null);
   
-  // Show loading state while checking authentication
-  if (isLoading) {
+  // Load recipe data when component mounts
+  useEffect(() => {
+    const loadRecipe = async () => {
+      try {
+        console.log('Loading recipe for editing:', recipeId);
+        const recipe: any = await apiClient.getRecipe(recipeId);
+        console.log('Loaded recipe:', recipe);
+        
+        // Transform the recipe data to match our form structure
+        const ingredients = recipe.ingredients?.map((ri: any, index: number) => ({
+          id: ri.id || `${index}`,
+          amount: ri.amount || 1,
+          unit: ri.unit || 'cup',
+          name: ri.ingredient?.name || ri.name || '',
+          notes: ri.notes || '',
+          category: ri.ingredient?.category || 'other',
+          brand: ri.brand || '',
+          isOptional: ri.isOptional || false
+        })) || [];
+
+        // Ensure we have at least one ingredient slot
+        if (ingredients.length === 0) {
+          ingredients.push({ id: '1', amount: 1, unit: 'cup', name: '', category: 'other' });
+        }
+
+        const instructions = Array.isArray(recipe.instructions) 
+          ? recipe.instructions 
+          : (recipe.instructions ? JSON.parse(recipe.instructions) : ['']);
+
+        setFormData({
+          title: recipe.title || '',
+          description: recipe.description || '',
+          servings: recipe.servings || 4,
+          prepTime: recipe.prepTime || 15,
+          cookTime: recipe.cookTime || 30,
+          difficulty: recipe.difficulty || 'Easy',
+          visibility: recipe.visibility || 'PUBLIC',
+          scalingKeyIngredient: recipe.scalingKeyIngredient,
+          ingredients,
+          instructions: instructions.length > 0 ? instructions : [''],
+          tags: recipe.tags || [],
+          isArfidFriendly: recipe.isArfidFriendly || false,
+          arfidNotes: recipe.arfidNotes || ''
+        });
+
+      } catch (error) {
+        console.error('Error loading recipe:', error);
+        setSubmitError('Failed to load recipe data');
+      } finally {
+        setIsLoading2(false);
+      }
+    };
+
+    if (recipeId) {
+      loadRecipe();
+    }
+  }, [recipeId]);
+  
+  // Show loading state while checking authentication or loading recipe
+  if (isLoading || isLoading2) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2 text-gray-600">Loading...</span>
-      </div>
-    );
-  }
-
-  // TEMPORARY: Allow recipe creation without authentication for testing
-  // Show authentication required message (DISABLED FOR TESTING)
-  if (false && !isAuthenticated) {
-    return (
-      <div className="max-w-2xl mx-auto p-8 bg-yellow-50 border border-yellow-200 rounded-xl">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-yellow-800 mb-2">Authentication Required</h3>
-          <p className="text-yellow-700 mb-6">You need to be logged in to create recipes.</p>
-          <div className="flex justify-center space-x-4">
-            <button 
-              onClick={() => window.location.href = '/'}
-              className="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
-            >
-              Sign In
-            </button>
-            <button 
-              onClick={onCancel}
-              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+        <span className="ml-2 text-gray-600">Loading recipe...</span>
       </div>
     );
   }
@@ -197,9 +222,9 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
     setSubmitError(null);
 
     try {
-      console.log('Processing ingredients...');
+      console.log('Processing ingredients for update...');
       
-      // Process ingredients for submission (simplified - no backend ingredient creation)
+      // Process ingredients for submission
       const processedIngredients = formData.ingredients
         .filter(ing => ing.name.trim())
         .map((ing, index) => {
@@ -220,11 +245,11 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
         throw new Error('Please add at least one ingredient');
       }
 
-      // Prepare the recipe data for the API (simplified)
+      // Prepare the recipe data for the API
       const recipePayload = {
         title: formData.title,
         description: formData.description,
-        instructions: formData.instructions.filter(i => i.trim()), // Send as array
+        instructions: formData.instructions.filter(i => i.trim()),
         servings: formData.servings,
         prepTime: formData.prepTime,
         cookTime: formData.cookTime,
@@ -232,31 +257,40 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
         visibility: formData.visibility,
         isArfidFriendly: formData.isArfidFriendly,
         arfidNotes: formData.arfidNotes,
-        ingredients: processedIngredients // Send ingredients with name, amount, unit etc directly
+        ingredients: processedIngredients
       };
 
-      console.log('Submitting recipe:', recipePayload);
+      console.log('Updating recipe:', recipePayload);
 
-      // Create the recipe via API (cast to any to bypass type issues)
-      const createdRecipe = await apiClient.createRecipe(recipePayload as any);
+      // Update the recipe via API
+      const updatedRecipe: any = await apiClient.updateRecipe(recipeId, recipePayload as any);
       
-      // Success - redirect to the recipes list instead of specific recipe (for now)
-      console.log('Recipe created successfully:', createdRecipe.id);
-      window.location.href = `/recipes`;
+      // Success - redirect back to the recipe view
+      console.log('Recipe updated successfully:', updatedRecipe.id);
+      window.location.href = `/recipes/${recipeId}`;
 
     } catch (error) {
-      console.error('Error creating recipe:', error);
-      setSubmitError(error instanceof Error ? error.message : 'Failed to create recipe');
+      console.error('Error updating recipe:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Failed to update recipe');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    } else {
+      // Navigate back to recipe view
+      window.location.href = `/recipes/${recipeId}`;
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg">
       <div className="p-6 border-b border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-900">Create New Recipe</h1>
-        <p className="text-gray-600 mt-1">Share your recipe with the community</p>
+        <h1 className="text-2xl font-bold text-gray-900">Edit Recipe</h1>
+        <p className="text-gray-600 mt-1">Update your recipe details</p>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-8">
@@ -650,7 +684,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
         <div className="flex justify-between pt-6 border-t border-gray-200">
           <button
             type="button"
-            onClick={onCancel}
+            onClick={handleCancel}
             className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancel
@@ -665,26 +699,16 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
             )}
             
             <div className="flex space-x-3">
-            <button
-              type="button"
-              onClick={() => {
-                // Save as draft functionality
-                console.log('Save as draft:', formData);
-              }}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Save Draft
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !formData.title.trim()}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
-            >
-              {isSubmitting && (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              )}
-              <span>{isSubmitting ? 'Creating Recipe...' : 'Publish Recipe'}</span>
-            </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !formData.title.trim()}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
+              >
+                {isSubmitting && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                )}
+                <span>{isSubmitting ? 'Updating Recipe...' : 'Update Recipe'}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -694,12 +718,12 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
 };
 
 // Self-contained wrapper component that provides AuthProvider
-const SafeRecipeCreateForm: React.FC<RecipeCreateFormProps> = (props) => {
+const SafeRecipeEditForm: React.FC<RecipeEditFormProps> = (props) => {
   return (
     <AuthProvider>
-      <RecipeCreateFormInner {...props} />
+      <RecipeEditFormInner {...props} />
     </AuthProvider>
   );
 };
 
-export default SafeRecipeCreateForm;
+export default SafeRecipeEditForm;

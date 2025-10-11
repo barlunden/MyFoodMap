@@ -124,6 +124,7 @@ CREATE TABLE "meal_logs" (
     "mealDate" TIMESTAMP(3) NOT NULL,
     "mealType" TEXT NOT NULL,
     "portionEaten" TEXT NOT NULL,
+    "weightGrams" DOUBLE PRECISION,
     "energyBefore" INTEGER,
     "energyAfter" INTEGER,
     "location" TEXT,

@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
+// Get API base URL from environment
+const getApiBaseUrl = () => import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api';
+
 const ApiTest: React.FC = () => {
   const [apiData, setApiData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -8,7 +11,7 @@ const ApiTest: React.FC = () => {
     const testApi = async () => {
       try {
         console.log('Testing API connection...');
-        const response = await fetch('http://localhost:3001/api/recipes');
+        const response = await fetch(`${getApiBaseUrl()}/recipes`);
         console.log('Response status:', response.status);
         
         if (!response.ok) {

@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import MealLogger from '../components/MealLogger';
+---
+
+<Layout title="Meal Log - MyFoodMap" showSearch={false}>
+	<div class="min-h-screen bg-gray-50">
+		<!-- Breadcrumb -->
+		<div class="bg-white border-b">
+			<div class="container mx-auto px-4 py-4">
+				<nav class="flex items-center space-x-2 text-sm">
+					<a href="/" class="text-indigo-600 hover:text-indigo-800">Hjem</a>
+					<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+					</svg>
+					<a href="/arfid-dashboard" class="text-indigo-600 hover:text-indigo-800">ARFID Dashboard</a>
+					<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+					</svg>
+					<span class="text-gray-500">Meal Log</span>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Main Content -->
+		<div class="container mx-auto px-4 py-8">
+			<MealLogger client:load />
+		</div>
+	</div>
+</Layout>
+
+<style>
+	.container {
+		max-width: 1200px;
+	}
+</style>

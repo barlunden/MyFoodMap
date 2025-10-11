@@ -2,12 +2,68 @@
 import Layout from '../layouts/Layout.astro';
 import SafeRecipeList from '../components/SafeRecipeList';
 import FeaturedRecipeWithData from '../components/FeaturedRecipeWithData';
+import ApiTest from '../components/ApiTest';
 ---
 
 <Layout title="MyFoodMap - A personalized recipe and nutrition app for picky eaters and ARFID families" showSearch={true}>
 	<main>
-		<!-- Hero Section with Featured Recipe -->
-		<section class="container mx-auto px-4 py-8">
+		<!-- API Test Component for development -->
+		<ApiTest client:load />
+		
+		<!-- ARFID-Focused Hero Section -->
+		<section class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20">
+			<div class="container mx-auto px-4">
+				<div class="text-center max-w-4xl mx-auto">
+					<h1 class="text-5xl font-bold text-gray-900 mb-6">
+						MyFoodMap
+					</h1>
+					<p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+						A personalized app for food exploration and nutrition tracking, 
+						specially designed for families with ARFID and selective eating.
+					</p>
+					
+					<div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+						<a 
+							href="/arfid-dashboard" 
+							class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center space-x-2"
+						>
+							<span>ARFID Dashboard</span>
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+							</svg>
+						</a>
+						<a 
+							href="/safe-foods" 
+							class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center space-x-2"
+						>
+							<span>My Safe Foods</span>
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+							</svg>
+						</a>
+					</div>
+
+					<!-- Quick Stats -->
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
+						<div class="bg-white/80 backdrop-blur rounded-lg p-6 text-center">
+							<div class="text-2xl font-bold text-green-600 mb-1">23</div>
+							<div class="text-sm text-gray-600">Safe foods</div>
+						</div>
+						<div class="bg-white/80 backdrop-blur rounded-lg p-6 text-center">
+							<div class="text-2xl font-bold text-blue-600 mb-1">85%</div>
+							<div class="text-sm text-gray-600">Successful meals</div>
+						</div>
+						<div class="bg-white/80 backdrop-blur rounded-lg p-6 text-center">
+							<div class="text-2xl font-bold text-purple-600 mb-1">12</div>
+							<div class="text-sm text-gray-600">ARFID-friendly recipes</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Featured Recipe Section -->
+		<section class="container mx-auto px-4 py-16">
 			<FeaturedRecipeWithData client:load />
 		</section>
 
@@ -17,8 +73,8 @@ import FeaturedRecipeWithData from '../components/FeaturedRecipeWithData';
 				<div class="text-center mb-12">
 					<h2 class="text-3xl font-bold text-gray-900 mb-4">Why MyFoodMap?</h2>
 					<p class="text-xl text-gray-600 max-w-2xl mx-auto">
-						A personalized recipe and nutrition app designed specifically for picky eaters and ARFID families, 
-						with smart scaling and transparent nutrition tracking.
+						A personalized app for food exploration and nutrition tracking, 
+						specially designed for families with ARFID and selective eating.
 					</p>
 				</div>
 				
@@ -29,7 +85,7 @@ import FeaturedRecipeWithData from '../components/FeaturedRecipeWithData';
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21l3-3-3-3m0 0l3-3m-3 3h11M3 4h18M5 8h14M7 12h10" />
 							</svg>
 						</div>
-						<h3 class="text-xl font-semibold mb-3">Smart Recipe Scaling</h3>
+						<h3 class="text-xl font-semibold mb-3">Smart recipe scaling</h3>
 						<p class="text-gray-600">
 							Select any ingredient as your scaling base and automatically 
 							adjust all other ingredients proportionally with perfect ratios.
@@ -39,10 +95,10 @@ import FeaturedRecipeWithData from '../components/FeaturedRecipeWithData';
 					<div class="text-center">
 						<div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
 							<svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
 							</svg>
 						</div>
-						<h3 class="text-xl font-semibold mb-3">Nutritional Transparency</h3>
+						<h3 class="text-xl font-semibold mb-3">Nutritional transparency</h3>
 						<p class="text-gray-600">
 							Complete nutrition breakdown per serving with support for 
 							ARFID dietary tracking and medical sharing.
@@ -55,7 +111,7 @@ import FeaturedRecipeWithData from '../components/FeaturedRecipeWithData';
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
 							</svg>
 						</div>
-						<h3 class="text-xl font-semibold mb-3">ARFID-Friendly</h3>
+						<h3 class="text-xl font-semibold mb-3">ARFID-friendly</h3>
 						<p class="text-gray-600">
 							Sensory-friendly recipes with clear ingredient lists, 
 							texture descriptions, and safe food exploration.
@@ -65,12 +121,66 @@ import FeaturedRecipeWithData from '../components/FeaturedRecipeWithData';
 			</div>
 		</section>
 
+		<!-- ARFID Features Section -->
+		<section class="bg-gradient-to-r from-green-50 to-blue-50 py-16">
+			<div class="container mx-auto px-4">
+				<div class="text-center mb-12">
+					<h2 class="text-3xl font-bold text-gray-900 mb-4">ARFID-specific features</h2>
+					<p class="text-xl text-gray-600 max-w-3xl mx-auto">
+						Tools developed specifically to support families with ARFID and selective eating
+					</p>
+				</div>
+				
+				<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+					<a href="/safe-foods" class="bg-white rounded-lg p-6 hover:shadow-lg transition-shadow group">
+						<div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-200 transition-colors">
+							<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+							</svg>
+						</div>
+						<h3 class="font-semibold mb-2">Safe foods</h3>
+						<p class="text-sm text-gray-600">Keep track of foods that work, with notes about texture and preparation</p>
+					</a>
+
+					<a href="/meal-log" class="bg-white rounded-lg p-6 hover:shadow-lg transition-shadow group">
+						<div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
+							<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+							</svg>
+						</div>
+						<h3 class="font-semibold mb-2">Meal logging</h3>
+						<p class="text-sm text-gray-600">Log meals, energy levels and what made the meal successful</p>
+					</a>
+
+					<div class="bg-white rounded-lg p-6 hover:shadow-lg transition-shadow group">
+						<div class="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-200 transition-colors">
+							<svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+							</svg>
+						</div>
+						<h3 class="font-semibold mb-2">Progress reports</h3>
+						<p class="text-sm text-gray-600">Track progress over time and share with healthcare providers</p>
+					</div>
+
+					<div class="bg-white rounded-lg p-6 hover:shadow-lg transition-shadow group">
+						<div class="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-200 transition-colors">
+							<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+							</svg>
+						</div>
+						<h3 class="font-semibold mb-2">Exploration guides</h3>
+						<p class="text-sm text-gray-600">Step-by-step guides for safe exploration of new textures and flavors</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
 		<!-- Recent Recipes Section -->
 		<section class="container mx-auto px-4 py-16">
 			<div class="text-center mb-8">
-				<h2 class="text-3xl font-bold text-gray-900 mb-4">Popular Recipes</h2>
+				<h2 class="text-3xl font-bold text-gray-900 mb-4">Recipe Collection</h2>
 				<p class="text-xl text-gray-600">
-					Discover community favorites and ARFID-friendly recipes
+					Discover community favorites and explore ARFID-friendly recipes
 				</p>
 			</div>
 			<SafeRecipeList client:load />

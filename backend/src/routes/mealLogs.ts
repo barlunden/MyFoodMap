@@ -1,9 +1,8 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
 import { authenticateToken } from '../middleware/auth.js';
+import { prisma } from '../index.js';
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // Get meal logs for authenticated user (with optional date filtering)
 router.get('/', authenticateToken, async (req, res) => {

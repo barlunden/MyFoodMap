@@ -1,6 +1,6 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import RecipeDetail from '../../components/RecipeDetail';
+import Layout from '../../../layouts/Layout.astro';
+import SafeRecipeEditForm from '../../../components/SafeRecipeEditForm';
 
 // For static generation, fetch recipes from backend
 export async function getStaticPaths() {
@@ -40,6 +40,11 @@ if (!id) {
 }
 ---
 
-<Layout title="Recipe Details - MyFoodMap">
-	<RecipeDetail client:load recipeId={id} />
+<Layout title="Edit Recipe - MyFoodMap">
+	<main class="container mx-auto px-4 py-8">
+		<SafeRecipeEditForm 
+			client:load
+			recipeId={id as string}
+		/>
+	</main>
 </Layout>
