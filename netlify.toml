@@ -1,8 +1,10 @@
 [build]
+  # Set base directory to frontend folder
+  base = "frontend"
   # Frontend build command
-  command = "npm run build:frontend"
+  command = "npm install && npm run build"
   # Frontend build output directory 
-  publish = "frontend/dist"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
