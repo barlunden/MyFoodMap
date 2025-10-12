@@ -158,7 +158,7 @@ model SafeFood {
   id                 String   @id @default(cuid())
   userId             String
   foodName           String
-  dateFirstAccepted  DateTime // Important milestone for ARFID families
+  dateFirstAccepted  DateTime? // Important milestone for ARFID families - can be null for non-established foods
   category           String?  // "protein", "carb", "fruit", "vegetable", "dairy", "snack"
   preparationNotes   String?  // How the food must be prepared
   brandPreference    String?  // Specific brands that work
@@ -166,6 +166,12 @@ model SafeFood {
   photoUrl           String?  // Visual reference
   isActive           Boolean  @default(true)
   notes              String?  // General notes about this food
+  
+  // New fields for discovery system
+  timesConsumed      Int      @default(0) // Track how many times this food has been consumed
+  personalRating     Int?     // 1-10 scale - personal preference rating
+  isEstablishedSafeFood Boolean @default(false) // Whether this is confirmed as a safe food
+  lastConsumedDate   DateTime? // When this food was last consumed
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -180,7 +186,8 @@ model SafeFood {
 model MealLog {
   id               String   @id @default(cuid())
   userId           String
-  safeFoodId       String?   // Made optional
+  safeFoodId       String?   // Made optional for discovery system
+  foodName         String?   // Free text food name for discovery (when safeFoodId is null)
   mealDate         DateTime
   mealType         String   // "breakfast", "lunch", "dinner", "snack"
   portionEaten     String   // "all", "most", "half", "few-bites", "none"
@@ -190,6 +197,9 @@ model MealLog {
   location         String?  // "home", "school", "restaurant", etc.
   successFactors   String?  // What helped make this meal successful
   notes            String?
+  
+  // Discovery system support
+  wasSuccessful    Boolean? // Whether this meal attempt was successful
   
   createdAt DateTime @default(now())
   

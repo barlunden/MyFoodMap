@@ -11,7 +11,7 @@ import authRoutes from './routes/auth.js';
 import recipeRoutes from './routes/recipes.js';
 import ingredientRoutes from './routes/ingredients.js';
 import userRoutes from './routes/users.js';
-import safeFoodRoutes from './routes/safeFoods.js';
+import safeFoodRoutes from './routes/safe-foods.js';
 import mealLogRoutes from './routes/mealLogs.js';
 import lockdownLogRoutes from './routes/lockdownLogs.js';
 import logsRoutes from './routes/logs.js';
