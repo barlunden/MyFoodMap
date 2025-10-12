@@ -2,9 +2,9 @@
 const IS_DEMO_MODE = import.meta.env.PUBLIC_DEMO_MODE === 'true';
 const IS_PRODUCTION = import.meta.env.MODE === 'production';
 
-// Use Netlify Functions in production, local server in development
+// Use Railway backend in production, local server in development
 const API_BASE_URL = IS_PRODUCTION 
-  ? '/api' // Netlify Functions
+  ? (import.meta.env.PUBLIC_API_URL || 'https://myfoodmap-production.up.railway.app/api')
   : (import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api');
 
 console.log('API Base URL:', API_BASE_URL);
@@ -388,21 +388,21 @@ class ApiClient {
   }
 
   async createIngredient(ingredientData: any): Promise<any> {
-    return this.request<any>('/ingredients', {
+    return this.request<any>('/ingredients/no-auth', {
       method: 'POST',
       body: JSON.stringify(ingredientData),
     });
   }
 
   async updateIngredient(id: string, ingredientData: any): Promise<any> {
-    return this.request<any>(`/ingredients/${id}`, {
+    return this.request<any>(`/ingredients/no-auth/${id}`, {
       method: 'PUT',
       body: JSON.stringify(ingredientData),
     });
   }
 
   async deleteIngredient(id: string): Promise<void> {
-    return this.request<void>(`/ingredients/${id}`, {
+    return this.request<void>(`/ingredients/no-auth/${id}`, {
       method: 'DELETE',
     });
   }

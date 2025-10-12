@@ -1,5 +1,8 @@
 // Simple API client for backend communication
-const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api';
+const IS_PRODUCTION = import.meta.env.MODE === 'production';
+const API_BASE_URL = IS_PRODUCTION 
+  ? (import.meta.env.PUBLIC_API_URL || 'https://myfoodmap-production.up.railway.app/api')
+  : (import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api');
 
 export class ApiClient {
   private baseUrl: string;

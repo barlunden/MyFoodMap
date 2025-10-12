@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
 // Get API base URL from environment
-const getApiBaseUrl = () => import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api';
+const IS_PRODUCTION = import.meta.env.MODE === 'production';
+const getApiBaseUrl = () => IS_PRODUCTION 
+  ? (import.meta.env.PUBLIC_API_URL || 'https://myfoodmap-production.up.railway.app/api')
+  : (import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api');
 
 const ApiTest: React.FC = () => {
   const [apiData, setApiData] = useState<any>(null);

@@ -72,6 +72,122 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Get ingredient categories
+router.get('/categories', async (_req, res) => {
+  try {
+    const categories = await prisma.ingredient.findMany({
+      select: { category: true },
+      distinct: ['category'],
+      where: {
+        category: { not: null }
+      },
+      orderBy: { category: 'asc' }
+    });
+    
+    res.json(categories.map((c: { category: string | null }) => c.category).filter(Boolean));
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
+// Create custom ingredient (no auth - for demo/testing)
+router.post('/no-auth', async (req, res) => {
+  try {
+    const {
+      name,
+      category,
+      calories,
+      protein,
+      carbs,
+      fat,
+      fiber,
+      sugar,
+      sodium,
+      vitaminA,
+      vitaminC,
+      vitaminD,
+      calcium,
+      iron
+    } = req.body;
+    
+    console.log('Creating ingredient (no-auth):', name);
+    
+    // Check if ingredient already exists
+    const existingIngredient = await prisma.ingredient.findUnique({
+      where: { name: name.toLowerCase().trim() }
+    });
+    
+    if (existingIngredient) {
+      console.log('Ingredient already exists:', existingIngredient.id);
+      return res.json(existingIngredient); // Return existing instead of error
+    }
+    
+    const ingredient = await prisma.ingredient.create({
+      data: {
+        name: name.toLowerCase().trim(),
+        category,
+        calories: calories ? parseFloat(calories) : null,
+        protein: protein ? parseFloat(protein) : null,
+        carbs: carbs ? parseFloat(carbs) : null,
+        fat: fat ? parseFloat(fat) : null,
+        fiber: fiber ? parseFloat(fiber) : null,
+        sugar: sugar ? parseFloat(sugar) : null,
+        sodium: sodium ? parseFloat(sodium) : null,
+        vitaminA: vitaminA ? parseFloat(vitaminA) : null,
+        vitaminC: vitaminC ? parseFloat(vitaminC) : null,
+        vitaminD: vitaminD ? parseFloat(vitaminD) : null,
+        calcium: calcium ? parseFloat(calcium) : null,
+        iron: iron ? parseFloat(iron) : null
+      }
+    });
+    
+    console.log('Created ingredient:', ingredient.id);
+    res.status(201).json(ingredient);
+  } catch (error) {
+    console.error('Error creating ingredient:', error);
+    res.status(500).json({ error: 'Failed to create ingredient' });
+  }
+});
+
+// Update ingredient (no auth - for demo/testing)
+router.put('/no-auth/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    console.log('Updating ingredient (no-auth):', id);
+    
+    const ingredient = await prisma.ingredient.update({
+      where: { id },
+      data: updateData
+    });
+    
+    res.json(ingredient);
+  } catch (error) {
+    console.error('Error updating ingredient:', error);
+    res.status(500).json({ error: 'Failed to update ingredient' });
+  }
+});
+
+// Delete ingredient (no auth - for demo/testing)
+router.delete('/no-auth/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log('Deleting ingredient (no-auth):', id);
+    
+    await prisma.ingredient.delete({
+      where: { id }
+    });
+    
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting ingredient:', error);
+    res.status(500).json({ error: 'Failed to delete ingredient' });
+  }
+});
+
 // Create custom ingredient (requires authentication)
 router.post('/', authenticateToken, async (req, res) => {
   try {
@@ -226,25 +342,6 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting ingredient:', error);
     res.status(500).json({ error: 'Failed to delete ingredient' });
-  }
-});
-
-// Get ingredient categories
-router.get('/categories/list', async (_req, res) => {
-  try {
-    const categories = await prisma.ingredient.findMany({
-      select: { category: true },
-      distinct: ['category'],
-      where: {
-        category: { not: null }
-      },
-      orderBy: { category: 'asc' }
-    });
-    
-    res.json(categories.map((c: { category: string | null }) => c.category).filter(Boolean));
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
 

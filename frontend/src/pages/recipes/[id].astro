@@ -6,7 +6,10 @@ import RecipeDetail from '../../components/RecipeDetail';
 export async function getStaticPaths() {
   try {
     // Try to fetch recipes from backend
-    const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api';
+    const IS_PRODUCTION = import.meta.env.MODE === 'production';
+    const apiBaseUrl = IS_PRODUCTION 
+      ? (import.meta.env.PUBLIC_API_URL || 'https://myfoodmap-production.up.railway.app/api')
+      : (import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api');
     const response = await fetch(`${apiBaseUrl}/recipes`);
     if (response.ok) {
       const recipes = await response.json();
