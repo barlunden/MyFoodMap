@@ -28,7 +28,10 @@ app.use(cors({
     'http://localhost:4322', // Allow both ports since Astro might switch
     'http://localhost:4323',
     'http://localhost:4324',
-    'http://localhost:4325' // Allow multiple ports for development
+    'http://localhost:4325', // Allow multiple ports for development
+    'https://jovial-swan-d0ed57.netlify.app', // Netlify production URL
+    /\.netlify\.app$/, // Allow any Netlify subdomain
+    /^https:\/\/.*\.netlify\.app$/, // More specific Netlify pattern
   ],
   credentials: true
 }));
