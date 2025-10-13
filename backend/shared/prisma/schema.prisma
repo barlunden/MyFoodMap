@@ -168,6 +168,12 @@ model SafeFood {
   isActive           Boolean  @default(true)
   notes              String?  // General notes about this food
   
+  // Discovery system fields
+  timesConsumed      Int      @default(0)     // Track consumption frequency
+  personalRating     Int?                     // 1-5 personal rating
+  lastConsumedDate   DateTime?                // When last consumed
+  isEstablishedSafeFood Boolean @default(false) // Has reached safe food status
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
