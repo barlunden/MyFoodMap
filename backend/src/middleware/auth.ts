@@ -13,8 +13,14 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     return res.status(401).json({ error: 'Access token required' });
   }
   
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('JWT_SECRET not configured - this is a security issue!');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+  
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as { userId: string };
+    const decoded = jwt.verify(token, jwtSecret) as { userId: string };
     req.user = { userId: decoded.userId };
     next();
   } catch (error) {

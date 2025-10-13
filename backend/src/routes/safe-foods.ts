@@ -1,16 +1,19 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = Router();
 const prisma = new PrismaClient();
 
-// Get all safe foods for a user
-router.get('/', async (req, res) => {
+// Get all safe foods for authenticated user
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user?.userId || 'cmgmi7b0l000ftw2hz1sc3g33'; // Demo user fallback
+    if (!req.user?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     
     const safeFoods = await prisma.safeFood.findMany({
-      where: { userId },
+      where: { userId: req.user.userId },
       orderBy: [
         { isEstablishedSafeFood: 'desc' }, // Established safe foods first
         { timesConsumed: 'desc' }, // Then by consumption count
@@ -25,16 +28,19 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a specific safe food
-router.get('/:id', async (req, res) => {
+// Get a specific safe food for authenticated user
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user?.userId || 'cmgmi7b0l000ftw2hz1sc3g33';
+    
+    if (!req.user?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
 
     const safeFood = await prisma.safeFood.findFirst({
       where: { 
         id,
-        userId
+        userId: req.user.userId
       },
       include: {
         mealLogs: {
@@ -55,10 +61,13 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create a new safe food
-router.post('/no-auth', async (req, res) => {
+// Create a new safe food (requires authentication)
+router.post('/', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user?.userId || 'cmgmi7b0l000ftw2hz1sc3g33';
+    if (!req.user?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
     const {
       foodName,
       category,
@@ -77,7 +86,7 @@ router.post('/no-auth', async (req, res) => {
     // Check if this food already exists for this user
     const existingFood = await prisma.safeFood.findFirst({
       where: {
-        userId,
+        userId: req.user.userId,
         foodName: {
           equals: foodName,
           mode: 'insensitive'
@@ -91,7 +100,7 @@ router.post('/no-auth', async (req, res) => {
 
     const safeFood = await prisma.safeFood.create({
       data: {
-        userId,
+        userId: req.user.userId,
         foodName,
         category,
         preparationNotes,
@@ -112,11 +121,15 @@ router.post('/no-auth', async (req, res) => {
   }
 });
 
-// Update a safe food
-router.put('/no-auth/:id', async (req, res) => {
+// Update a safe food (requires authentication)
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user?.userId || 'cmgmi7b0l000ftw2hz1sc3g33';
+    
+    if (!req.user?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
     const {
       foodName,
       category,
@@ -130,7 +143,7 @@ router.put('/no-auth/:id', async (req, res) => {
 
     // Check if safe food exists and belongs to user
     const existingFood = await prisma.safeFood.findFirst({
-      where: { id, userId }
+      where: { id, userId: req.user.userId }
     });
 
     if (!existingFood) {
@@ -165,15 +178,18 @@ router.put('/no-auth/:id', async (req, res) => {
   }
 });
 
-// Delete a safe food
-router.delete('/no-auth/:id', async (req, res) => {
+// Delete a safe food (requires authentication)
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user?.userId || 'cmgmi7b0l000ftw2hz1sc3g33';
+    
+    if (!req.user?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
 
     // Check if safe food exists and belongs to user
     const existingFood = await prisma.safeFood.findFirst({
-      where: { id, userId }
+      where: { id, userId: req.user.userId }
     });
 
     if (!existingFood) {
@@ -191,14 +207,16 @@ router.delete('/no-auth/:id', async (req, res) => {
   }
 });
 
-// Get safe food suggestions (foods consumed 5+ times but not yet established)
-router.get('/suggestions/pending', async (req, res) => {
+// Get safe food suggestions (foods consumed 5+ times but not yet established) - requires auth
+router.get('/suggestions/pending', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user?.userId || 'cmgmi7b0l000ftw2hz1sc3g33';
+    if (!req.user?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     
     const suggestions = await prisma.safeFood.findMany({
       where: {
-        userId,
+        userId: req.user.userId,
         isEstablishedSafeFood: false,
         timesConsumed: {
           gte: 5 // 5 or more times consumed
@@ -214,16 +232,19 @@ router.get('/suggestions/pending', async (req, res) => {
   }
 });
 
-// Promote a food to established safe food
-router.post('/no-auth/:id/promote', async (req, res) => {
+// Promote a food to established safe food (requires authentication)
+router.post('/:id/promote', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user?.userId || 'cmgmi7b0l000ftw2hz1sc3g33';
+    
+    if (!req.user?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
 
     const safeFood = await prisma.safeFood.update({
       where: { 
         id,
-        userId 
+        userId: req.user.userId 
       },
       data: {
         isEstablishedSafeFood: true,
