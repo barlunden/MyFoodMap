@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 
 // Get API base URL from environment
 const IS_PRODUCTION = import.meta.env.MODE === 'production';
@@ -24,12 +23,12 @@ interface SafeFood {
 }
 
 const SafeFoodsManager: React.FC = () => {
-  const { isAuthenticated, token, isLoading: authLoading } = useAuth();
   const [safeFoods, setSafeFoods] = useState<SafeFood[]>([]);
   const [filteredSafeFoods, setFilteredSafeFoods] = useState<SafeFood[]>([]);
   const [suggestions, setSuggestions] = useState<SafeFood[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -55,17 +54,28 @@ const SafeFoodsManager: React.FC = () => {
   const apiBaseUrl = getApiBaseUrl();
 
   useEffect(() => {
-    if (isAuthenticated && token) {
+    // Check if user is authenticated by looking for token
+    const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
       loadSafeFoods();
       loadSuggestions();
+    } else {
+      setIsAuthenticated(false);
+      setLoading(false);
     }
-  }, [isAuthenticated, token]);
+  }, []);
 
   useEffect(() => {
     filterAndSort();
   }, [safeFoods, searchTerm, categoryFilter, sortBy]);
 
+  const getToken = () => {
+    return localStorage.getItem('auth_token') || localStorage.getItem('token');
+  };
+
   const loadSafeFoods = async () => {
+    const token = getToken();
     if (!token) {
       setError('Please log in to view your safe foods');
       setLoading(false);
@@ -98,6 +108,7 @@ const SafeFoodsManager: React.FC = () => {
   };
 
   const loadSuggestions = async () => {
+    const token = getToken();
     if (!token) return; // Skip if not authenticated
     
     try {
@@ -177,6 +188,7 @@ const SafeFoodsManager: React.FC = () => {
     e.preventDefault();
     
     try {
+      const token = getToken();
       if (!token) {
         throw new Error('Please log in to manage safe foods');
       }
@@ -218,6 +230,7 @@ const SafeFoodsManager: React.FC = () => {
     if (!confirm('Are you sure you want to delete this safe food?')) return;
     
     try {
+      const token = getToken();
       if (!token) {
         throw new Error('Please log in to manage safe foods');
       }
@@ -245,6 +258,7 @@ const SafeFoodsManager: React.FC = () => {
 
   const promoteSafeFood = async (id: string) => {
     try {
+      const token = getToken();
       if (!token) {
         throw new Error('Please log in to promote foods');
       }
@@ -285,7 +299,7 @@ const SafeFoodsManager: React.FC = () => {
     return colors[category as keyof typeof colors] || colors.other;
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
