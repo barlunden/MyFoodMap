@@ -47,21 +47,28 @@ function HeaderWithAuth({ showSearch }: { showSearch?: boolean }) {
             <a href="/recipes" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
               Recipes
             </a>
-            <a href="/nutrition" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-              Nutrition
-            </a>
-            <a href="/comprehensive-log" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-              📋 Event Log
-            </a>
+
             {isAuthenticated && (
               <>
+                <a href="/arfid-dashboard" className="text-green-600 hover:text-green-700 font-medium transition-colors">
+                  �️ ARFID Dashboard
+                </a>
+                <a href="/safe-foods" className="text-green-600 hover:text-green-700 font-medium transition-colors">
+                  ✅ Safe Foods
+                </a>
                 <a href="/food-diary" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
                   📖 Food Diary
                 </a>
-                <a href="/recipes/add" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                  Add Recipe
+                <a href="/comprehensive-log" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                  📋 Event Log
                 </a>
+
               </>
+            )}
+            {!isAuthenticated && (
+              <a href="/comprehensive-log" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                📋 Event Log
+              </a>
             )}
             
             {/* Auth Controls */}
@@ -125,22 +132,23 @@ function HeaderWithAuth({ showSearch }: { showSearch?: boolean }) {
             >
               Recipes
             </a>
-            <a 
-              href="/nutrition" 
-              className="block text-gray-600 hover:text-gray-900 font-medium py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Nutrition
-            </a>
-            <a 
-              href="/comprehensive-log" 
-              className="block text-gray-600 hover:text-gray-900 font-medium py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              📋 Event Log
-            </a>
+
             {isAuthenticated && (
               <>
+                <a 
+                  href="/arfid-dashboard" 
+                  className="block text-green-600 hover:text-green-700 font-medium py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  �️ ARFID Dashboard
+                </a>
+                <a 
+                  href="/safe-foods" 
+                  className="block text-green-600 hover:text-green-700 font-medium py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ✅ Safe Foods
+                </a>
                 <a 
                   href="/food-diary" 
                   className="block text-gray-600 hover:text-gray-900 font-medium py-2"
@@ -149,13 +157,23 @@ function HeaderWithAuth({ showSearch }: { showSearch?: boolean }) {
                   📖 Food Diary
                 </a>
                 <a 
-                  href="/recipes/add" 
+                  href="/comprehensive-log" 
                   className="block text-gray-600 hover:text-gray-900 font-medium py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Add Recipe
+                  📋 Event Log
                 </a>
+
               </>
+            )}
+            {!isAuthenticated && (
+              <a 
+                href="/comprehensive-log" 
+                className="block text-gray-600 hover:text-gray-900 font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                📋 Event Log
+              </a>
             )}
             
             {!isAuthenticated && (

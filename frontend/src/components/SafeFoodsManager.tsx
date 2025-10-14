@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 // Get API base URL from environment
 const IS_PRODUCTION = import.meta.env.MODE === 'production';
@@ -23,6 +24,7 @@ interface SafeFood {
 }
 
 const SafeFoodsManager: React.FC = () => {
+  const { isAuthenticated, token, isLoading: authLoading } = useAuth();
   const [safeFoods, setSafeFoods] = useState<SafeFood[]>([]);
   const [filteredSafeFoods, setFilteredSafeFoods] = useState<SafeFood[]>([]);
   const [suggestions, setSuggestions] = useState<SafeFood[]>([]);
@@ -53,24 +55,34 @@ const SafeFoodsManager: React.FC = () => {
   const apiBaseUrl = getApiBaseUrl();
 
   useEffect(() => {
-    loadSafeFoods();
-    loadSuggestions();
-  }, []);
+    if (isAuthenticated && token) {
+      loadSafeFoods();
+      loadSuggestions();
+    }
+  }, [isAuthenticated, token]);
 
   useEffect(() => {
     filterAndSort();
   }, [safeFoods, searchTerm, categoryFilter, sortBy]);
 
   const loadSafeFoods = async () => {
+    if (!token) {
+      setError('Please log in to view your safe foods');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
+      
       const response = await fetch(`${apiBaseUrl}/safe-foods`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
+      
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           throw new Error('Please log in to view your safe foods');
         }
         throw new Error('Failed to load safe foods');
@@ -86,10 +98,9 @@ const SafeFoodsManager: React.FC = () => {
   };
 
   const loadSuggestions = async () => {
+    if (!token) return; // Skip if not authenticated
+    
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return; // Skip if not authenticated
-      
       const response = await fetch(`${apiBaseUrl}/safe-foods/suggestions/pending`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -166,7 +177,6 @@ const SafeFoodsManager: React.FC = () => {
     e.preventDefault();
     
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Please log in to manage safe foods');
       }
@@ -208,7 +218,6 @@ const SafeFoodsManager: React.FC = () => {
     if (!confirm('Are you sure you want to delete this safe food?')) return;
     
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Please log in to manage safe foods');
       }
@@ -236,7 +245,6 @@ const SafeFoodsManager: React.FC = () => {
 
   const promoteSafeFood = async (id: string) => {
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Please log in to promote foods');
       }
@@ -277,7 +285,7 @@ const SafeFoodsManager: React.FC = () => {
     return colors[category as keyof typeof colors] || colors.other;
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
@@ -286,16 +294,72 @@ const SafeFoodsManager: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (!isAuthenticated) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600">Error: {error}</p>
-        <button 
-          onClick={loadSafeFoods}
-          className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-        >
-          Try Again
-        </button>
+        <div className="text-red-600 mb-4">
+          <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+          <p className="text-lg font-medium">Authentication Required</p>
+        </div>
+        <div className="space-y-4">
+          <p className="text-gray-600">You need to be logged in to manage your safe foods.</p>
+          <div className="space-x-4">
+            <a 
+              href="/"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded inline-block"
+            >
+              Go to Home & Login
+            </a>
+            <a 
+              href="/arfid-dashboard"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded inline-block"
+            >
+              ARFID Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    const isAuthError = error.includes('log in');
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-600 mb-4">
+          <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+          <p className="text-lg font-medium">{error}</p>
+        </div>
+        {isAuthError ? (
+          <div className="space-y-4">
+            <p className="text-gray-600">You need to be logged in to manage your safe foods.</p>
+            <div className="space-x-4">
+              <a 
+                href="/"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded inline-block"
+              >
+                Go to Home & Login
+              </a>
+              <a 
+                href="/arfid-dashboard"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded inline-block"
+              >
+                ARFID Dashboard
+              </a>
+            </div>
+          </div>
+        ) : (
+          <button 
+            onClick={loadSafeFoods}
+            className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+          >
+            Try Again
+          </button>
+        )}
       </div>
     );
   }

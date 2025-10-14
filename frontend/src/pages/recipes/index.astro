@@ -6,7 +6,18 @@ import SafeRecipeList from '../../components/SafeRecipeList';
 <Layout title="All Recipes - MyFoodMap">
 	<main class="container mx-auto px-4 py-8">
 		<div class="mb-8">
-			<h1 class="text-4xl font-bold text-gray-900 mb-4">All Recipes</h1>
+			<div class="flex items-center justify-between mb-4">
+				<h1 class="text-4xl font-bold text-gray-900">All Recipes</h1>
+				<a 
+					href="/recipes/add"
+					class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+				>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+					Add Recipe
+				</a>
+			</div>
 			<p class="text-xl text-gray-600 max-w-2xl">
 				Browse your complete recipe collection with smart scaling and nutrition tracking.
 			</p>

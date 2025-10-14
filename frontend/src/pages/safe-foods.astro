@@ -1,10 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SafeFoodsManager from '../components/SafeFoodsManager';
+import RootProvider from '../components/RootProvider';
 ---
 
 <Layout title="Safe Foods - MyFoodMap">
   <main>
-    <SafeFoodsManager client:load />
+    <RootProvider client:only="react">
+      <SafeFoodsManager />
+    </RootProvider>
   </main>
 </Layout>

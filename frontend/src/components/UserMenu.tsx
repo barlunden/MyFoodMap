@@ -70,6 +70,21 @@ export default function UserMenu() {
             
             <div className="py-2">
               <a
+                href="/arfid-dashboard"
+                className="block px-4 py-2 text-sm text-green-700 hover:bg-green-50 transition-colors font-medium"
+                onClick={() => setIsOpen(false)}
+              >
+                🛡️ ARFID Dashboard
+              </a>
+              <a
+                href="/safe-foods"
+                className="block px-4 py-2 text-sm text-green-700 hover:bg-green-50 transition-colors font-medium"
+                onClick={() => setIsOpen(false)}
+              >
+                ✅ Safe Foods
+              </a>
+              <div className="border-t border-gray-100 my-2"></div>
+              <a
                 href="/recipes"
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                 onClick={() => setIsOpen(false)}
