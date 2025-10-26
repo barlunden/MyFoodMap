@@ -17,7 +17,7 @@ import {
   type RecipeRequest,
   type SafeFoodRequest,
   type MealLogRequest,
-} from '../../../shared/validation/schemas';
+} from '../shared/validation/schemas'
 
 // Re-export commonly used schemas and types
 export {
@@ -70,7 +70,7 @@ export function validatePassword(password: string): PasswordValidationResult {
   if (!result.success) {
     return {
       isValid: false,
-      errors: result.error.errors.map(err => err.message),
+      errors: result.error.errors.map((err: { message: string }) => err.message),
       strength: 'weak',
     };
   }
