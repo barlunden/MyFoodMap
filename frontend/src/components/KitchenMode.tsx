@@ -413,7 +413,7 @@ const KitchenMode: React.FC<KitchenModeProps> = ({
                     value={customTimerName}
                     onChange={(e) => setCustomTimerName(e.target.value)}
                     placeholder="e.g., Boil eggs"
-                    className="w-full px-3 py-2 bg-gray-600 text-white rounded-lg border border-gray-500 focus:border-blue-400 focus:outline-none"
+                    className="w-full px-3 py-2 bg-gray-600 text-white rounded-lg border border-gray-500 focus:border-blue-400 focus:outline-hidden"
                   />
                 </div>
                 
@@ -432,7 +432,7 @@ const KitchenMode: React.FC<KitchenModeProps> = ({
                       max="180"
                       value={customTimerMinutes}
                       onChange={(e) => setCustomTimerMinutes(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-20 px-3 py-2 bg-gray-600 text-white text-center rounded-lg border border-gray-500 focus:border-blue-400 focus:outline-none"
+                      className="w-20 px-3 py-2 bg-gray-600 text-white text-center rounded-lg border border-gray-500 focus:border-blue-400 focus:outline-hidden"
                     />
                     <button
                       onClick={() => setCustomTimerMinutes(Math.min(180, customTimerMinutes + 1))}
@@ -634,7 +634,7 @@ const KitchenMode: React.FC<KitchenModeProps> = ({
                     {!timer.isCompleted && (
                       <button
                         onClick={() => timer.isActive ? pauseTimer(timer.id) : startTimer(timer.id)}
-                        className="p-1 hover:bg-black hover:bg-opacity-20 rounded"
+                        className="p-1 hover:bg-black/20 rounded"
                       >
                         {timer.isActive ? (
                           // Pause icon
@@ -652,7 +652,7 @@ const KitchenMode: React.FC<KitchenModeProps> = ({
                     
                     <button
                       onClick={() => removeTimer(timer.id)}
-                      className="p-1 hover:bg-red-500 hover:bg-opacity-50 rounded text-red-300"
+                      className="p-1 hover:bg-red-500/50 rounded text-red-300"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

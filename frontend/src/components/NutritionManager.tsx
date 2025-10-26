@@ -203,12 +203,12 @@ const NutritionManager: React.FC = () => {
                 placeholder="Search ingredients..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Categories</option>
                 {categories.map(cat => (
@@ -244,7 +244,7 @@ const NutritionManager: React.FC = () => {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Chicken breast, Broccoli, Rice"
                   />
                 </div>
@@ -255,7 +255,7 @@ const NutritionManager: React.FC = () => {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select category...</option>
                     {categories.map(cat => (
@@ -280,7 +280,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.calories}
                       onChange={(e) => setFormData({...formData, calories: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="kcal"
                     />
                   </div>
@@ -293,7 +293,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.protein}
                       onChange={(e) => setFormData({...formData, protein: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="g"
                     />
                   </div>
@@ -306,7 +306,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.carbs}
                       onChange={(e) => setFormData({...formData, carbs: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="g"
                     />
                   </div>
@@ -319,7 +319,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.fat}
                       onChange={(e) => setFormData({...formData, fat: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="g"
                     />
                   </div>
@@ -332,7 +332,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.fiber}
                       onChange={(e) => setFormData({...formData, fiber: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="g"
                     />
                   </div>
@@ -345,7 +345,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.sugar}
                       onChange={(e) => setFormData({...formData, sugar: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="g"
                     />
                   </div>
@@ -367,7 +367,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.sodium}
                       onChange={(e) => setFormData({...formData, sodium: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="mg"
                     />
                   </div>
@@ -380,7 +380,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.vitaminA}
                       onChange={(e) => setFormData({...formData, vitaminA: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="mcg"
                     />
                   </div>
@@ -393,7 +393,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.vitaminC}
                       onChange={(e) => setFormData({...formData, vitaminC: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="mg"
                     />
                   </div>
@@ -406,7 +406,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.vitaminD}
                       onChange={(e) => setFormData({...formData, vitaminD: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="mcg"
                     />
                   </div>
@@ -419,7 +419,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.calcium}
                       onChange={(e) => setFormData({...formData, calcium: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="mg"
                     />
                   </div>
@@ -432,7 +432,7 @@ const NutritionManager: React.FC = () => {
                       step="0.1"
                       value={formData.iron}
                       onChange={(e) => setFormData({...formData, iron: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                       placeholder="mg"
                     />
                   </div>

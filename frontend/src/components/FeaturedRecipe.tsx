@@ -50,7 +50,7 @@ const FeaturedRecipe: React.FC<FeaturedRecipeProps> = ({
   return (
     <div className="relative bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl overflow-hidden shadow-2xl">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-black bg-opacity-20">
+      <div className="absolute inset-0 bg-black/20">
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black opacity-30"></div>
       </div>
       
@@ -66,7 +66,7 @@ const FeaturedRecipe: React.FC<FeaturedRecipeProps> = ({
 
       {/* Favorite Button */}
       <div className="absolute top-6 right-6 z-10">
-        <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg">
+        <div className="bg-white/20 backdrop-blur-xs rounded-lg">
           <FavoriteButton
             recipeId={recipe.id}
             isFavorited={isFavorited}
@@ -124,7 +124,7 @@ const FeaturedRecipe: React.FC<FeaturedRecipeProps> = ({
               {/* Author */}
               {recipe.author && (
                 <div className="flex items-center space-x-3 mb-8">
-                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
                     {recipe.author.avatar ? (
                       <img src={recipe.author.avatar} alt={recipe.author.name} className="w-10 h-10 rounded-full" />
                     ) : (
@@ -158,7 +158,7 @@ const FeaturedRecipe: React.FC<FeaturedRecipeProps> = ({
             </div>
 
             {/* Right Column - Recipe Preview */}
-            <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6">
+            <div className="bg-white/10 backdrop-blur-xs rounded-xl p-6">
               <h3 className="text-xl font-bold text-white mb-4">Quick Preview</h3>
               
               {/* Key Ingredients */}
@@ -201,7 +201,7 @@ const FeaturedRecipe: React.FC<FeaturedRecipeProps> = ({
                 <div className="mt-6">
                   <div className="flex flex-wrap gap-2">
                     {recipe.tags.slice(0, 3).map((tag) => (
-                      <span key={tag} className="px-2 py-1 bg-white bg-opacity-20 text-white text-xs rounded-full">
+                      <span key={tag} className="px-2 py-1 bg-white/20 text-white text-xs rounded-full">
                         {tag}
                       </span>
                     ))}

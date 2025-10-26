@@ -1,6 +1,6 @@
 // Simple API client for MyFoodMap
 const IS_DEMO_MODE = import.meta.env.PUBLIC_DEMO_MODE === 'true';
-const IS_PRODUCTION = import.meta.env.MODE === 'production';
+const IS_PRODUCTION = import.meta.env.PROD;
 
 // Use Railway backend in production, local server in development
 const API_BASE_URL = IS_PRODUCTION 
@@ -148,6 +148,58 @@ export interface SearchParams {
   offset?: number;
 }
 
+export interface SafeFoodSearchParams {
+  q?: string;                 // generell søking (som i SearchParams)
+  name?: string;              // spesifikt namn på safe food
+  category?: string;          // kategori (frukt, grønsaker, etc)
+  tags?: string;              // tags/labels
+  isArfidFriendly?: boolean;  // er maten "ARFID-venleg"
+  limit?: number;             // antal resultat
+  offset?: number;            // for paginering
+}
+
+export interface SafeFood {
+  id: string;
+  userId: string;
+  foodName: string;
+  dateFirstAccepted: string; // ISO date string
+  category?: string; // "protein", "carb", "fruit", "vegetable", "dairy", "snack"
+  preparationNotes?: string;
+  brandPreference?: string;
+  textureNotes?: string;
+  photoUrl?: string;
+  isActive: boolean;
+  notes?: string;
+  
+  // Discovery system fields
+  timesConsumed: number;
+  personalRating?: number; // 1-5 scale
+  lastConsumedDate?: string; // ISO date string
+  isEstablishedSafeFood: boolean;
+  
+  createdAt: string;
+  updatedAt: string;
+  
+  // Relations
+  user: {
+    id: string;
+    name?: string;
+    username?: string;
+  };
+}
+
+export interface CreateSafeFoodPayload {
+  foodName: string;
+  dateFirstAccepted: string;
+  category?: string;
+  preparationNotes?: string;
+  brandPreference?: string;
+  textureNotes?: string;
+  photoUrl?: string;
+  notes?: string;
+  personalRating?: number;
+}
+
 export interface CreateRecipePayload {
   title: string;
   description?: string;
@@ -169,6 +221,56 @@ export interface CreateRecipePayload {
     isOptional?: boolean;
     ingredientId: string;
   }>;
+}
+
+export interface MealLog {
+  id: string;
+  userId: string;
+  safeFoodId?: string;
+  mealDate: string; // ISO date string
+  mealType: string; // "breakfast", "lunch", "dinner", "snack"
+  portionEaten: string; // "all", "most", "half", "few-bites", "none"
+  weightGrams?: number;
+  energyBefore?: number; // 1-5 scale
+  energyAfter?: number; // 1-5 scale
+  location?: string; // "home", "school", "restaurant", etc.
+  successFactors?: string;
+  notes?: string;
+  createdAt: string;
+  
+  // Relations
+  user: {
+    id: string;
+    name?: string;
+  };
+  safeFood?: {
+    id: string;
+    foodName: string;
+  };
+}
+
+export interface LockdownLog {
+  id: string;
+  userId: string;
+  incidentDate: string; // ISO date string
+  incidentTime: string;
+  durationMinutes?: number;
+  energyLevelBefore?: number; // 1-5 scale
+  triggers?: string;
+  behaviorsObserved?: string;
+  resolutionStrategy?: string;
+  resolutionTimeMinutes?: number;
+  familyImpactLevel?: number; // 1-5 scale
+  notes?: string;
+  lessonsLearned?: string;
+  createdAt: string;
+  updatedAt: string;
+  
+  // Relations
+  user: {
+    id: string;
+    name?: string;
+  };
 }
 
 class ApiClient {
@@ -363,6 +465,14 @@ class ApiClient {
     });
   }
 
+  async updateRecipe(id: string, recipeData: any): Promise<Recipe> {
+    // TEMPORARY: use no-auth endpoint for testing
+    return this.request<Recipe>(`/recipes/no-auth/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(recipeData),
+    });
+  }
+
   async toggleFavorite(recipeId: string): Promise<{ favorited: boolean }> {
     return this.request<{ favorited: boolean }>(`/recipes/${recipeId}/favorite`, {
       method: 'POST',
@@ -430,6 +540,83 @@ class ApiClient {
     }
   }
 
+  // Meal endpoints
+  async logMeal(meal: {
+    safeFoodId: string;
+    mealDate: string;
+    mealType: string;
+    portionEaten: string;
+    energyBefore?: number;
+    energyAfter?: number;
+    location?: string;
+    successFactors?: string;
+    notes?: string;
+  }): Promise<MealLog> {
+    return this.request<MealLog>('/meal-logs', {
+      method: 'POST',
+      body: JSON.stringify(meal),
+    });
+  }
+
+
+  // Safe Foods endpoints
+
+  async getSafeFoods(params: SafeFoodSearchParams = {}): Promise<SafeFood[]> {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString());
+      }
+    });
+    
+    return this.request<any[]>(`/safe-foods?${searchParams.toString()}`);
+  }
+
+  async getSafeFood(id: string): Promise<SafeFood> {
+    return this.request<SafeFood>(`/safe-foods/${id}`);
+  }
+
+  async createSafeFood(safeFoodData: CreateSafeFoodPayload): Promise<SafeFood> {
+    return this.request<SafeFood>('/safe-foods', {
+      method: 'POST',
+      body: JSON.stringify(safeFoodData),
+    });
+  }
+
+  async updateSafeFood(id: string, safeFoodData: Partial<CreateSafeFoodPayload>): Promise<SafeFood> {
+    return this.request<SafeFood>(`/safe-foods/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(safeFoodData),
+    });
+  }
+
+  async deleteSafeFood(id: string): Promise<void> {
+    return this.request<void>(`/safe-foods/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Get Logs endpoints
+
+  async getLogs(): Promise<any[]> {
+    return this.request<any[]>('/logs');
+  }
+
+  async getMealLogs(params: { startDate?: string; endDate?: string; mealType?: string } = {}): Promise<MealLog[]> {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString());
+      }
+    });
+  const query = searchParams.toString();
+    return this.request<MealLog[]>(`/meal-logs${query ? `?${query}` : ''}`);
+  }
+
+  async getLockdownLogs(): Promise<LockdownLog[]> {
+    return this.request<LockdownLog[]>('/logs/lockdowns');
+  }
+
   // Health check
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
     return this.request<{ status: string; timestamp: string }>('/health');
@@ -458,3 +645,4 @@ export function getInstructions(recipe: Recipe): string[] {
 export function getTags(recipe: Recipe): string[] {
   return safeParseJson(recipe.tags, []);
 }
+

@@ -275,7 +275,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                 required
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., Mom's Perfect Scrambled Eggs"
               />
             </div>
@@ -288,7 +288,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 placeholder="Describe your recipe, any special techniques, or why it's great for families..."
               />
             </div>
@@ -304,7 +304,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                 max="50"
                 value={formData.servings}
                 onChange={(e) => setFormData(prev => ({ ...prev, servings: parseInt(e.target.value) || 1 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -315,7 +315,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
               <select
                 value={formData.difficulty}
                 onChange={(e) => setFormData(prev => ({ ...prev, difficulty: e.target.value as 'Easy' | 'Medium' | 'Hard' }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Easy">Easy</option>
                 <option value="Medium">Medium</option>
@@ -332,7 +332,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                 min="0"
                 value={formData.prepTime}
                 onChange={(e) => setFormData(prev => ({ ...prev, prepTime: parseInt(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -345,7 +345,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                 min="0"
                 value={formData.cookTime}
                 onChange={(e) => setFormData(prev => ({ ...prev, cookTime: parseInt(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -390,7 +390,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                   value={formData.arfidNotes || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, arfidNotes: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., Smooth texture, no strong smells, single color, brand-flexible ingredients..."
                 />
               </div>
@@ -423,7 +423,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                       min="0"
                       value={ingredient.amount}
                       onChange={(e) => updateIngredient(ingredient.id, 'amount', parseFloat(e.target.value) || 0)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
 
@@ -432,7 +432,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                     <select
                       value={ingredient.unit}
                       onChange={(e) => updateIngredient(ingredient.id, 'unit', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                     >
                       {commonUnits.map(unit => (
                         <option key={unit} value={unit}>{unit}</option>
@@ -447,7 +447,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                       required
                       value={ingredient.name}
                       onChange={(e) => updateIngredient(ingredient.id, 'name', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                       placeholder="e.g., Large eggs"
                     />
                   </div>
@@ -457,7 +457,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                     <select
                       value={ingredient.category}
                       onChange={(e) => updateIngredient(ingredient.id, 'category', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                     >
                       {ingredientCategories.map(cat => (
                         <option key={cat} value={cat} className="capitalize">{cat}</option>
@@ -487,7 +487,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                       type="text"
                       value={ingredient.brand || ''}
                       onChange={(e) => updateIngredient(ingredient.id, 'brand', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                       placeholder="e.g., Organic Valley, any brand"
                     />
                   </div>
@@ -497,7 +497,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                       type="text"
                       value={ingredient.notes || ''}
                       onChange={(e) => updateIngredient(ingredient.id, 'notes', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                       placeholder="e.g., Room temperature, finely chopped"
                     />
                   </div>
@@ -524,7 +524,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
             <select
               value={formData.scalingKeyIngredient || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, scalingKeyIngredient: e.target.value || undefined }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-green-500"
             >
               <option value="">Choose an ingredient to use as scaling base...</option>
               {formData.ingredients.map(ing => (
@@ -555,7 +555,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
           <div className="space-y-3">
             {formData.instructions.map((instruction, index) => (
               <div key={index} className="flex space-x-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                   {index + 1}
                 </div>
                 <div className="flex-1">
@@ -563,7 +563,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                     value={instruction}
                     onChange={(e) => updateInstruction(index, e.target.value)}
                     rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                     placeholder="Describe this step in detail..."
                     required
                   />
@@ -571,7 +571,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                 <button
                   type="button"
                   onClick={() => removeInstruction(index)}
-                  className="flex-shrink-0 p-2 text-red-600 hover:text-red-800 transition-colors"
+                  className="shrink-0 p-2 text-red-600 hover:text-red-800 transition-colors"
                   disabled={formData.instructions.length === 1}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -594,7 +594,7 @@ const RecipeCreateFormInner: React.FC<RecipeCreateFormProps> = ({
                 value={currentTag}
                 onChange={(e) => setCurrentTag(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 placeholder="Add a tag..."
               />
               <button

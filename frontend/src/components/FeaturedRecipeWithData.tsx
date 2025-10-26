@@ -1,46 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FeaturedRecipe from './FeaturedRecipe';
-import { apiClient } from '../lib/api-client';
-
-// Backend recipe type
-interface BackendRecipe {
-  id: string;
-  title: string;
-  description: string;
-  instructions: string;
-  servings: number;
-  prepTime: number;
-  cookTime: number;
-  difficulty: string;
-  isArfidFriendly: boolean;
-  arfidNotes: string | null;
-  tags: string;
-  user: {
-    name: string;
-    username: string;
-  };
-  ingredients: Array<{
-    id: string;
-    amount: number;
-    unit: string;
-    ingredient: {
-      id: string;
-      name: string;
-      category: string;
-      calories: number;
-      protein: number;
-      carbs: number;
-      fat: number;
-      fiber: number;
-      sodium: number;
-      calcium: number;
-      iron: number;
-    };
-  }>;
-  _count: {
-    favorites: number;
-  };
-}
+import { apiClient, type Recipe } from '../lib/api';
 
 interface FeaturedRecipeWithDataProps {
   onViewRecipe?: (id: string) => void;
@@ -51,14 +11,14 @@ const FeaturedRecipeWithData: React.FC<FeaturedRecipeWithDataProps> = ({
   onViewRecipe,
   onToggleFavorite
 }) => {
-  const [recipe, setRecipe] = useState<BackendRecipe | null>(null);
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFeaturedRecipe = async () => {
       try {
-        const data = await apiClient.getFeaturedRecipe() as BackendRecipe;
+        const data = await apiClient.getFeaturedRecipe();
         setRecipe(data);
       } catch (err) {
         console.error('Error fetching featured recipe:', err);
@@ -77,9 +37,9 @@ const FeaturedRecipeWithData: React.FC<FeaturedRecipeWithDataProps> = ({
         <div className="relative z-10 p-8 lg:p-12">
           <div className="max-w-4xl mx-auto text-center text-white">
             <div className="animate-pulse">
-              <div className="h-8 bg-white bg-opacity-20 rounded mb-4 w-3/4 mx-auto"></div>
-              <div className="h-4 bg-white bg-opacity-20 rounded mb-8 w-1/2 mx-auto"></div>
-              <div className="h-12 bg-white bg-opacity-20 rounded w-48 mx-auto"></div>
+              <div className="h-8 bg-white/20 rounded mb-4 w-3/4 mx-auto"></div>
+              <div className="h-4 bg-white/20 rounded mb-8 w-1/2 mx-auto"></div>
+              <div className="h-12 bg-white/20 rounded w-48 mx-auto"></div>
             </div>
           </div>
         </div>
@@ -148,7 +108,7 @@ const FeaturedRecipeWithData: React.FC<FeaturedRecipeWithDataProps> = ({
     };
   };
 
-  const getTags = (recipe: BackendRecipe) => {
+  const getTags = (recipe: Recipe) => {
     try {
       return recipe.tags ? JSON.parse(recipe.tags) : [];
     } catch {
@@ -156,7 +116,7 @@ const FeaturedRecipeWithData: React.FC<FeaturedRecipeWithDataProps> = ({
     }
   };
 
-  const getInstructions = (recipe: BackendRecipe) => {
+  const getInstructions = (recipe: Recipe) => {
     try {
       return recipe.instructions ? JSON.parse(recipe.instructions) : [];
     } catch {
@@ -170,9 +130,9 @@ const FeaturedRecipeWithData: React.FC<FeaturedRecipeWithDataProps> = ({
         <div className="relative z-10 p-8 lg:p-12">
           <div className="max-w-4xl mx-auto text-center text-white">
             <div className="animate-pulse">
-              <div className="h-8 bg-white bg-opacity-20 rounded mb-4 w-3/4 mx-auto"></div>
-              <div className="h-4 bg-white bg-opacity-20 rounded mb-8 w-1/2 mx-auto"></div>
-              <div className="h-12 bg-white bg-opacity-20 rounded w-32 mx-auto"></div>
+              <div className="h-8 bg-white/20 rounded mb-4 w-3/4 mx-auto"></div>
+              <div className="h-4 bg-white/20 rounded mb-8 w-1/2 mx-auto"></div>
+              <div className="h-12 bg-white/20 rounded w-32 mx-auto"></div>
             </div>
           </div>
         </div>

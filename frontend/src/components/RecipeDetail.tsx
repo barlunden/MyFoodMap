@@ -416,7 +416,7 @@ const RecipeDetail: React.FC<RecipeDetailProps> = ({ recipeId }) => {
                 <div className="space-y-4">
                   {instructions.map((step, index) => (
                     <div key={index} className="flex space-x-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-semibold text-sm">
+                      <div className="shrink-0 w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-semibold text-sm">
                         {index + 1}
                       </div>
                       <p className="text-gray-700 leading-relaxed">{step}</p>

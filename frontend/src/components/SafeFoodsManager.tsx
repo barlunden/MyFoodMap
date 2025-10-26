@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '../lib/api';
 
-// Get API base URL from environment
-const IS_PRODUCTION = import.meta.env.MODE === 'production';
-const getApiBaseUrl = () => IS_PRODUCTION 
-  ? (import.meta.env.PUBLIC_API_URL || 'https://myfoodmap-production.up.railway.app/api')
-  : (import.meta.env.PUBLIC_API_URL || 'http://localhost:3001/api');
 
 interface SafeFood {
   id: string;
@@ -29,16 +25,18 @@ const SafeFoodsManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+
+  // Success message state
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   // Modal state
   const [showModal, setShowModal] = useState(false);
   const [editingFood, setEditingFood] = useState<SafeFood | null>(null);
-  
+
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [sortBy, setSortBy] = useState('established');
-  
+
   // Form state
   const [formData, setFormData] = useState({
     foodName: '',
@@ -48,12 +46,14 @@ const SafeFoodsManager: React.FC = () => {
     brandPreference: '',
     personalRating: 5,
     notes: '',
-    isEstablishedSafeFood: false
+    isEstablishedSafeFood: false,
+    dateFirstAccepted: new Date().toISOString().slice(0, 10) // YYYY-MM-DD
   });
 
-  const apiBaseUrl = getApiBaseUrl();
+  // ...existing code...
 
   useEffect(() => {
+    console.log("SafeFoodsManager Mounting")
     // Check if user is authenticated by looking for token
     const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
     if (token) {
@@ -75,55 +75,27 @@ const SafeFoodsManager: React.FC = () => {
   };
 
   const loadSafeFoods = async () => {
-    const token = getToken();
-    if (!token) {
-      setError('Please log in to view your safe foods');
-      setLoading(false);
-      return;
-    }
-
+    console.log('[SafeFoodsManager] loadSafeFoods called');
     try {
       setLoading(true);
-      
-      const response = await fetch(`${apiBaseUrl}/safe-foods`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          throw new Error('Please log in to view your safe foods');
-        }
-        throw new Error('Failed to load safe foods');
-      }
-      
-      const data = await response.json();
-      setSafeFoods(data);
+      console.log('[SafeFoodsManager] Calling apiClient.getSafeFoods');
+      const data = await apiClient.getSafeFoods();
+      console.log('[SafeFoodsManager] Data received:', data);
+      setSafeFoods(Array.isArray(data) ? data : []);
+      setError(null);
     } catch (err) {
+      console.error('[SafeFoodsManager] Error in loadSafeFoods:', err);
       setError(err instanceof Error ? err.message : 'Failed to load safe foods');
     } finally {
       setLoading(false);
+      console.log('[SafeFoodsManager] Loading set to false');
     }
   };
 
   const loadSuggestions = async () => {
-    const token = getToken();
-    if (!token) return; // Skip if not authenticated
-    
-    try {
-      const response = await fetch(`${apiBaseUrl}/safe-foods/suggestions/pending`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setSuggestions(data);
-      }
-    } catch (err) {
-      console.error('Failed to load suggestions:', err);
-    }
+    // TODO: Replace with apiClient method if available
+    // For now, leave empty or implement if backend supports it
+    setSuggestions([]);
   };
 
   const filterAndSort = () => {
@@ -164,8 +136,9 @@ const SafeFoodsManager: React.FC = () => {
       brandPreference: '',
       personalRating: 5,
       notes: '',
-      isEstablishedSafeFood: false
-    });
+      isEstablishedSafeFood: false,
+      dateFirstAccepted: new Date().toISOString().slice(0, 10)
+      });
     setShowModal(true);
   };
 
@@ -179,111 +152,45 @@ const SafeFoodsManager: React.FC = () => {
       brandPreference: food.brandPreference || '',
       personalRating: food.personalRating || 5,
       notes: food.notes || '',
-      isEstablishedSafeFood: food.isEstablishedSafeFood
-    });
+      isEstablishedSafeFood: food.isEstablishedSafeFood,
+      dateFirstAccepted: food.dateFirstAccepted || new Date().toISOString().slice(0, 10)
+      });
     setShowModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('Please log in to manage safe foods');
+      if (editingFood) {
+        await apiClient.updateSafeFood(editingFood.id, formData);
+        setSuccessMessage('Safe food updated!');
+      } else {
+        await apiClient.createSafeFood(formData);
+        setSuccessMessage('Safe food added!');
       }
-      
-      const url = editingFood 
-        ? `${apiBaseUrl}/safe-foods/${editingFood.id}`
-        : `${apiBaseUrl}/safe-foods`;
-      
-      const method = editingFood ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Please log in to manage safe foods');
-        }
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save safe food');
-      }
-      
       setShowModal(false);
       loadSafeFoods();
-      
-      // Show success message
-      alert(editingFood ? 'Safe food updated!' : 'Safe food added!');
+      setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to save safe food');
+      setError(err instanceof Error ? err.message : 'Failed to save safe food');
     }
   };
 
   const deleteSafeFood = async (id: string) => {
     if (!confirm('Are you sure you want to delete this safe food?')) return;
-    
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('Please log in to manage safe foods');
-      }
-      
-      const response = await fetch(`${apiBaseUrl}/safe-foods/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Please log in to manage safe foods');
-        }
-        throw new Error('Failed to delete safe food');
-      }
-      
+      await apiClient.deleteSafeFood(id);
       loadSafeFoods();
-      alert('Safe food deleted');
+      setSuccessMessage('Safe food deleted');
+      setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete safe food');
+      setError(err instanceof Error ? err.message : 'Failed to delete safe food');
     }
   };
 
   const promoteSafeFood = async (id: string) => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('Please log in to promote foods');
-      }
-      
-      const response = await fetch(`${apiBaseUrl}/safe-foods/${id}/promote`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Please log in to promote foods');
-        }
-        throw new Error('Failed to promote food');
-      }
-      
-      loadSafeFoods();
-      loadSuggestions();
-      alert('Food promoted to safe food! 🎉');
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to promote food');
-    }
+    // TODO: Implement promoteSafeFood in apiClient if backend supports it
+    alert('Promote safe food not implemented in apiClient yet.');
   };
 
   const getCategoryColor = (category?: string) => {
@@ -307,7 +214,7 @@ const SafeFoodsManager: React.FC = () => {
       </div>
     );
   }
-
+  
   if (!isAuthenticated) {
     return (
       <div className="text-center py-12">
@@ -377,12 +284,24 @@ const SafeFoodsManager: React.FC = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
       <div className="max-w-6xl mx-auto">
+        {/* Success Toast */}
+        {successMessage && (
+          <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+            <div className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{successMessage}</span>
+              <button onClick={() => setSuccessMessage(null)} className="ml-4 text-white/80 hover:text-white text-lg">&times;</button>
+            </div>
+          </div>
+        )}
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-xs p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Safe Foods</h1>
@@ -407,7 +326,7 @@ const SafeFoodsManager: React.FC = () => {
             <p className="text-yellow-700 mb-3">These foods have been consumed 5+ times. Consider adding them as safe foods:</p>
             <div className="space-y-2">
               {suggestions.map(suggestion => (
-                <div key={suggestion.id} className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                <div key={suggestion.id} className="flex items-center justify-between bg-white p-3 rounded-lg shadow-xs">
                   <div>
                     <span className="font-medium">{suggestion.foodName}</span>
                     <span className="text-sm text-gray-500 ml-2">(consumed {suggestion.timesConsumed} times)</span>
@@ -425,7 +344,7 @@ const SafeFoodsManager: React.FC = () => {
         )}
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div className="bg-white rounded-lg shadow-xs p-4 mb-6">
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex-1 min-w-0">
               <input 
@@ -486,7 +405,7 @@ const SafeFoodsManager: React.FC = () => {
               const stars = '★'.repeat(Math.floor(rating)) + '☆'.repeat(10 - Math.floor(rating));
               
               return (
-                <div key={food.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full">
+                <div key={food.id} className="bg-white rounded-lg shadow-xs border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full">
                   <div className="p-4 flex-1 flex flex-col">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-semibold text-gray-900 text-lg">{food.foodName}</h3>
@@ -555,7 +474,7 @@ const SafeFoodsManager: React.FC = () => {
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
               <form onSubmit={handleSubmit} className="p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -574,6 +493,16 @@ const SafeFoodsManager: React.FC = () => {
                       placeholder="e.g. Mamma's Homemade Chicken Nuggets"
                     />
                   </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Date First Accepted *</label>
+                      <input
+                        type="date"
+                        required
+                        value={formData.dateFirstAccepted}
+                        onChange={(e) => setFormData(prev => ({ ...prev, dateFirstAccepted: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>

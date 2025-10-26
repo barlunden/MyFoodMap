@@ -298,7 +298,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={mealForm.safeFoodId}
                     onChange={(e) => setMealForm(prev => ({ ...prev, safeFoodId: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                     required
                   >
                     <option value="">Select a safe food...</option>
@@ -315,7 +315,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={mealForm.mealType}
                     onChange={(e) => setMealForm(prev => ({ ...prev, mealType: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                   >
                     {mealTypes.map(type => (
                       <option key={type.value} value={type.value}>{type.label}</option>
@@ -329,7 +329,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="datetime-local"
                     value={mealForm.mealDate}
                     onChange={(e) => setMealForm(prev => ({ ...prev, mealDate: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -338,7 +338,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={mealForm.portionEaten}
                     onChange={(e) => setMealForm(prev => ({ ...prev, portionEaten: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                   >
                     {portionOptions.map(option => (
                       <option key={option.value} value={option.value}>{option.label}</option>
@@ -352,7 +352,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="number"
                     value={mealForm.weightGrams}
                     onChange={(e) => setMealForm(prev => ({ ...prev, weightGrams: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                     placeholder="e.g., 150"
                     min="0"
                     step="0.1"
@@ -365,7 +365,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={mealForm.energyBefore}
                     onChange={(e) => setMealForm(prev => ({ ...prev, energyBefore: parseInt(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                   >
                     {energyLevels.map(level => (
                       <option key={level.value} value={level.value}>{level.label}</option>
@@ -378,7 +378,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={mealForm.energyAfter}
                     onChange={(e) => setMealForm(prev => ({ ...prev, energyAfter: parseInt(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                   >
                     {energyLevels.map(level => (
                       <option key={level.value} value={level.value}>{level.label}</option>
@@ -391,7 +391,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={mealForm.location}
                     onChange={(e) => setMealForm(prev => ({ ...prev, location: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                   >
                     {locations.map(location => (
                       <option key={location.value} value={location.value}>{location.label}</option>
@@ -406,7 +406,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   type="text"
                   value={mealForm.successFactors}
                   onChange={(e) => setMealForm(prev => ({ ...prev, successFactors: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                   placeholder="What helped make this meal successful?"
                 />
               </div>
@@ -417,7 +417,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   value={mealForm.notes}
                   onChange={(e) => setMealForm(prev => ({ ...prev, notes: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500"
                   placeholder="Additional notes about this meal..."
                 />
               </div>
@@ -434,7 +434,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="text"
                     value={safeFoodForm.foodName}
                     onChange={(e) => setSafeFoodForm(prev => ({ ...prev, foodName: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Chicken Nuggets"
                     required
                   />
@@ -445,7 +445,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={safeFoodForm.category}
                     onChange={(e) => setSafeFoodForm(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   >
                     {categories.map(cat => (
                       <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -459,7 +459,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="date"
                     value={safeFoodForm.dateFirstAccepted}
                     onChange={(e) => setSafeFoodForm(prev => ({ ...prev, dateFirstAccepted: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -469,7 +469,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="text"
                     value={safeFoodForm.brandPreference}
                     onChange={(e) => setSafeFoodForm(prev => ({ ...prev, brandPreference: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Tyson brand only"
                   />
                 </div>
@@ -480,7 +480,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="text"
                     value={safeFoodForm.preparationNotes}
                     onChange={(e) => setSafeFoodForm(prev => ({ ...prev, preparationNotes: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Baked, not fried"
                   />
                 </div>
@@ -491,7 +491,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="text"
                     value={safeFoodForm.textureNotes}
                     onChange={(e) => setSafeFoodForm(prev => ({ ...prev, textureNotes: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Crispy outside, tender inside"
                   />
                 </div>
@@ -503,7 +503,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   value={safeFoodForm.notes}
                   onChange={(e) => setSafeFoodForm(prev => ({ ...prev, notes: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="Additional notes about this safe food..."
                 />
               </div>
@@ -520,7 +520,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="datetime-local"
                     value={lockdownForm.incidentDate}
                     onChange={(e) => setLockdownForm(prev => ({ ...prev, incidentDate: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                   />
                 </div>
 
@@ -530,7 +530,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="number"
                     value={lockdownForm.durationMinutes}
                     onChange={(e) => setLockdownForm(prev => ({ ...prev, durationMinutes: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                     placeholder="How long did it last?"
                   />
                 </div>
@@ -540,7 +540,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={lockdownForm.energyLevelBefore}
                     onChange={(e) => setLockdownForm(prev => ({ ...prev, energyLevelBefore: parseInt(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                   >
                     {energyLevels.map(level => (
                       <option key={level.value} value={level.value}>{level.label}</option>
@@ -553,7 +553,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   <select
                     value={lockdownForm.familyImpactLevel}
                     onChange={(e) => setLockdownForm(prev => ({ ...prev, familyImpactLevel: parseInt(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                   >
                     {energyLevels.map(level => (
                       <option key={level.value} value={level.value}>{level.label}</option>
@@ -567,7 +567,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                     type="number"
                     value={lockdownForm.resolutionTimeMinutes}
                     onChange={(e) => setLockdownForm(prev => ({ ...prev, resolutionTimeMinutes: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                     placeholder="How long to resolve?"
                   />
                 </div>
@@ -579,7 +579,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   value={lockdownForm.triggers}
                   onChange={(e) => setLockdownForm(prev => ({ ...prev, triggers: e.target.value }))}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                   placeholder="What triggered this episode?"
                 />
               </div>
@@ -590,7 +590,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   value={lockdownForm.behaviorsObserved}
                   onChange={(e) => setLockdownForm(prev => ({ ...prev, behaviorsObserved: e.target.value }))}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                   placeholder="What behaviors were observed?"
                 />
               </div>
@@ -601,7 +601,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   value={lockdownForm.resolutionStrategy}
                   onChange={(e) => setLockdownForm(prev => ({ ...prev, resolutionStrategy: e.target.value }))}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                   placeholder="What helped resolve the situation?"
                 />
               </div>
@@ -612,7 +612,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   value={lockdownForm.lessonsLearned}
                   onChange={(e) => setLockdownForm(prev => ({ ...prev, lessonsLearned: e.target.value }))}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                   placeholder="What can be done differently next time?"
                 />
               </div>
@@ -623,7 +623,7 @@ const AddLogEntry: React.FC<AddLogEntryProps> = ({ onLogAdded }) => {
                   value={lockdownForm.notes}
                   onChange={(e) => setLockdownForm(prev => ({ ...prev, notes: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-red-500"
                   placeholder="Any additional observations or notes..."
                 />
               </div>

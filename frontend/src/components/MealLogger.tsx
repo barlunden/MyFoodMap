@@ -1,5 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { getMockSafeFoods, getMockMealLogs, type MockSafeFood, type MockMealLog } from '../lib/mockData';
+import { apiClient } from '../lib/api';
+
+interface SafeFood {
+  id: string;
+  foodName: string;
+  brandPreference?: string;
+  // legg til andre felt ved behov
+}
+
+interface MealLog {
+  id: string;
+  userId: string;
+  safeFoodId?: string;
+  mealDate: string;
+  mealType: string;
+  portionEaten: string;
+  energyBefore?: number;
+  energyAfter?: number;
+  location?: string;
+  successFactors?: string;
+  notes?: string;
+  createdAt: string;
+  safeFood: SafeFood;
+}
 
 interface MealLoggerProps {
   className?: string;
@@ -17,8 +40,8 @@ interface NewMealLog {
 }
 
 export default function MealLogger({ className = '' }: MealLoggerProps) {
-  const [safeFoods, setSafeFoods] = useState<MockSafeFood[]>([]);
-  const [mealLogs, setMealLogs] = useState<MockMealLog[]>([]);
+  const [safeFoods, setSafeFoods] = useState<SafeFood[]>([]);
+  const [mealLogs, setMealLogs] = useState<MealLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newMeal, setNewMeal] = useState<NewMealLog>({
@@ -33,11 +56,23 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      setSafeFoods(getMockSafeFoods());
-      setMealLogs(getMockMealLogs());
-      setIsLoading(false);
-    }, 500);
+    // Hent trygge matvarer og meal logs frå backend
+    Promise.all([
+      apiClient.getSafeFoods(),
+      apiClient.getMealLogs({}) // evt. legg til filtrering
+    ])
+      .then(([foods, logs]) => {
+        setSafeFoods(foods);
+        // Filter out logs where safeFood is missing to satisfy the type
+        setMealLogs(
+          logs.filter((log: any) => log.safeFood) as MealLog[]
+        );
+      })
+      .catch(() => {
+        setSafeFoods([]);
+        setMealLogs([]);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const mealTypes = [
@@ -48,11 +83,11 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
   ];
 
   const portionOptions = [
-    { value: 'none', label: 'Ikke spist', color: 'text-red-600', bg: 'bg-red-100' },
-    { value: 'few-bites', label: 'Noen biter', color: 'text-orange-600', bg: 'bg-orange-100' },
+    { value: 'none', label: 'Not eaten', color: 'text-red-600', bg: 'bg-red-100' },
+    { value: 'few-bites', label: 'A few bites', color: 'text-orange-600', bg: 'bg-orange-100' },
     { value: 'half', label: 'Half portion', color: 'text-yellow-600', bg: 'bg-yellow-100' },
     { value: 'most', label: 'Most of it', color: 'text-blue-600', bg: 'bg-blue-100' },
-    { value: 'all', label: 'Alt', color: 'text-green-600', bg: 'bg-green-100' },
+    { value: 'all', label: 'All', color: 'text-green-600', bg: 'bg-green-100' },
   ];
 
   const energyLevels = [1, 2, 3, 4, 5];
@@ -61,14 +96,14 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
     const date = new Date(dateString);
     const today = new Date();
     const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setDate(today.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
       return 'I dag';
     } else if (date.toDateString() === yesterday.toDateString()) {
       return 'Yesterday';
     } else {
-      return date.toLocaleDateString('nb-NO', { 
+      return date.toLocaleDateString('nb-NO', {
         weekday: 'short',
         day: 'numeric',
         month: 'short'
@@ -85,17 +120,13 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
     return mealTypes.find(m => m.value === type) || { value: type, label: type, icon: '🍽️' };
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Find the selected safe food
+
     const selectedSafeFood = safeFoods.find(f => f.id === newMeal.safeFoodId);
     if (!selectedSafeFood) return;
 
-    // Create new meal log
-    const newMealLog: MockMealLog = {
-      id: `meal_${Date.now()}`,
-      userId: 'user1',
+    const mealToLog = {
       safeFoodId: newMeal.safeFoodId,
       mealDate: new Date().toISOString(),
       mealType: newMeal.mealType,
@@ -104,27 +135,28 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
       energyAfter: newMeal.energyAfter,
       location: newMeal.location,
       successFactors: newMeal.successFactors,
-      notes: newMeal.notes,
-      createdAt: new Date().toISOString(),
-      safeFood: selectedSafeFood
+      notes: newMeal.notes
     };
 
-    // Add to meal logs (newest first)
-    setMealLogs([newMealLog, ...mealLogs]);
-    
-    // Reset form
-    setNewMeal({
-      safeFoodId: '',
-      mealType: 'breakfast',
-      portionEaten: 'all',
-      energyBefore: undefined,
-      energyAfter: undefined,
-      location: 'home',
-      successFactors: '',
-      notes: ''
-    });
-    
-    setShowAddForm(false);
+    try {
+      const savedMeal = await apiClient.logMeal(mealToLog);
+      if (savedMeal.safeFood) {
+        setMealLogs([savedMeal as MealLog, ...mealLogs]);
+      }
+      setNewMeal({
+        safeFoodId: '',
+        mealType: 'breakfast',
+        portionEaten: 'all',
+        energyBefore: undefined,
+        energyAfter: undefined,
+        location: 'home',
+        successFactors: '',
+        notes: ''
+      });
+      setShowAddForm(false);
+    } catch (error) {
+      alert('Failed to log meal');
+    }
   };
 
   if (isLoading) {
@@ -162,7 +194,7 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
 
       {/* Add Meal Form */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
             <form onSubmit={handleSubmit} className="p-6">
               <div className="flex items-center justify-between mb-6">
@@ -363,11 +395,10 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
       {/* Recent Meal Logs */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-900">Recent meals</h3>
-        
         {mealLogs.map(log => {
           const mealTypeInfo = getMealTypeInfo(log.mealType);
           const portionStyle = getPortionStyle(log.portionEaten);
-          
+
           return (
             <div
               key={log.id}
@@ -384,14 +415,12 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                       <p className="text-gray-600">{log.safeFood.foodName}</p>
                     </div>
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${portionStyle}`}>
                         {portionOptions.find(p => p.value === log.portionEaten)?.label}
                       </span>
                     </div>
-
                     {(log.energyBefore || log.energyAfter) && (
                       <div className="flex items-center space-x-4">
                         {log.energyBefore && (
@@ -409,7 +438,6 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                             </div>
                           </div>
                         )}
-
                         {log.energyAfter && (
                           <div className="flex items-center space-x-1">
                             <span className="text-sm text-gray-500">Etter:</span>
@@ -427,7 +455,6 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                         )}
                       </div>
                     )}
-
                     {log.location && (
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -438,14 +465,12 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                       </div>
                     )}
                   </div>
-
                   {log.successFactors && (
                     <div className="mb-2">
                       <span className="text-sm font-medium text-green-700">Success factors: </span>
                       <span className="text-sm text-gray-600">{log.successFactors}</span>
                     </div>
                   )}
-
                   {log.notes && (
                     <div>
                       <span className="text-sm font-medium text-gray-700">Notater: </span>
@@ -453,11 +478,10 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                     </div>
                   )}
                 </div>
-
                 <div className="text-sm text-gray-400">
-                  {new Date(log.createdAt).toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                  {new Date(log.createdAt).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
                   })}
                 </div>
               </div>

@@ -73,7 +73,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
-            className="w-full px-4 py-3 text-gray-900 placeholder-gray-500 border-0 rounded-lg focus:outline-none focus:ring-0"
+            className="w-full px-4 py-3 text-gray-900 placeholder-gray-500 border-0 rounded-lg focus:outline-hidden focus:ring-0"
           />
         </div>
         
@@ -134,7 +134,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       ...prev, 
                       maxPrepTime: e.target.value ? parseInt(e.target.value) : undefined 
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="">Any time</option>
                     <option value="15">15 min or less</option>
@@ -151,7 +151,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       ...prev, 
                       maxCookTime: e.target.value ? parseInt(e.target.value) : undefined 
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="">Any time</option>
                     <option value="15">15 min or less</option>
@@ -175,7 +175,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       ...prev, 
                       difficulty: e.target.value as 'Easy' | 'Medium' | 'Hard' | undefined
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="">Any difficulty</option>
                     <option value="Easy">Easy</option>

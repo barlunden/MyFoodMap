@@ -203,7 +203,7 @@ const FoodDiary: React.FC = () => {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -229,7 +229,7 @@ const FoodDiary: React.FC = () => {
                   type="time"
                   value={newEntry.time}
                   onChange={(e) => setNewEntry({...newEntry, time: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -240,7 +240,7 @@ const FoodDiary: React.FC = () => {
                 <select
                   value={newEntry.foodId || ''}
                   onChange={(e) => handleIngredientChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select food...</option>
                   {ingredients.map((ingredient) => (
@@ -262,7 +262,7 @@ const FoodDiary: React.FC = () => {
                     placeholder="Enter what was eaten..."
                     value={newEntry.food}
                     onChange={(e) => setNewEntry({...newEntry, food: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               )}
@@ -274,7 +274,7 @@ const FoodDiary: React.FC = () => {
                 <select
                   value={newEntry.amount}
                   onChange={(e) => handleAmountChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select amount...</option>
                   {amountOptions.map((option) => (
@@ -307,7 +307,7 @@ const FoodDiary: React.FC = () => {
                         ...nutrition
                       });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               )}
@@ -350,7 +350,7 @@ const FoodDiary: React.FC = () => {
                   placeholder="E.g. 'liked it a lot' or 'didn't want more'"
                   value={newEntry.notes}
                   onChange={(e) => setNewEntry({...newEntry, notes: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>

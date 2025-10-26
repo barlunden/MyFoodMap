@@ -62,13 +62,13 @@ const RecipePrivacySelector: React.FC<RecipePrivacySelectorProps> = ({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          relative w-full bg-white border border-gray-300 rounded-lg shadow-sm pl-3 pr-10 py-3 text-left cursor-pointer
-          focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+          relative w-full bg-white border border-gray-300 rounded-lg shadow-xs pl-3 pr-10 py-3 text-left cursor-pointer
+          focus:outline-hidden focus:ring-1 focus:ring-blue-500 focus:border-blue-500
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-400'}
         `}
       >
         <div className="flex items-center">
-          <div className={`flex-shrink-0 rounded-full p-1 ${currentOption.color}`}>
+          <div className={`shrink-0 rounded-full p-1 ${currentOption.color}`}>
             {currentOption.icon}
           </div>
           <div className="ml-3 flex-1">
@@ -101,7 +101,7 @@ const RecipePrivacySelector: React.FC<RecipePrivacySelectorProps> = ({
           />
           
           {/* Options */}
-          <div className="absolute z-20 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
+          <div className="absolute z-20 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black/5 overflow-auto focus:outline-hidden">
             {options.map((option) => (
               <button
                 key={option.value}
@@ -119,7 +119,7 @@ const RecipePrivacySelector: React.FC<RecipePrivacySelectorProps> = ({
                 `}
               >
                 <div className="flex items-center">
-                  <div className={`flex-shrink-0 rounded-full p-1 ${option.color}`}>
+                  <div className={`shrink-0 rounded-full p-1 ${option.color}`}>
                     {option.icon}
                   </div>
                   <div className="ml-3 flex-1">
@@ -127,7 +127,7 @@ const RecipePrivacySelector: React.FC<RecipePrivacySelectorProps> = ({
                     <div className="text-sm text-gray-500">{option.description}</div>
                   </div>
                   {value === option.value && (
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>

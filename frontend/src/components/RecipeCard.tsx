@@ -69,7 +69,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       <div className="p-6 pb-4">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-xl font-bold text-gray-900 leading-tight flex-1 mr-3">{recipe.title}</h3>
-          <div className="flex space-x-1 flex-shrink-0">
+          <div className="flex space-x-1 shrink-0">
             <FavoriteButton
               recipeId={recipe.id}
               isFavorited={isFavorited}

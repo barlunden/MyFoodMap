@@ -1,41 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { apiClient } from '../lib/api-client';
-
-// Backend recipe type  
-interface BackendRecipe {
-  id: string;
-  title: string;
-  description: string;
-  instructions: string;
-  servings: number;
-  prepTime: number;
-  cookTime: number;
-  difficulty: string;
-  isArfidFriendly: boolean;
-  arfidNotes: string | null;
-  tags: string;
-  user: {
-    name: string;
-    username: string;
-  };
-  ingredients: Array<{
-    id: string;
-    amount: number;
-    unit: string;
-    ingredient: {
-      id: string;
-      name: string;
-      category: string;
-    };
-  }>;
-  _count: {
-    favorites: number;
-  };
-}
+import { apiClient, type Recipe } from '../lib/api';
 
 export default function SafeRecipeList() {
-  const [recipes, setRecipes] = useState<BackendRecipe[]>([]);
-  const [allRecipes, setAllRecipes] = useState<BackendRecipe[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showOnlyArfidFriendly, setShowOnlyArfidFriendly] = useState(false);
@@ -43,7 +11,7 @@ export default function SafeRecipeList() {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const data = await apiClient.getRecipes() as BackendRecipe[];
+        const data = await apiClient.getRecipes();
         setAllRecipes(data);
         setRecipes(data); // Show all recipes initially
         console.log('Fetched recipes:', data.length);
@@ -77,7 +45,7 @@ export default function SafeRecipeList() {
     }
   };
 
-  const getTags = (recipe: BackendRecipe) => {
+  const getTags = (recipe: Recipe) => {
     try {
       return recipe.tags ? JSON.parse(recipe.tags) : [];
     } catch {
@@ -121,7 +89,7 @@ export default function SafeRecipeList() {
             onClick={() => setShowOnlyArfidFriendly(false)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               !showOnlyArfidFriendly
-                ? 'bg-white text-gray-900 shadow-sm'
+                ? 'bg-white text-gray-900 shadow-xs'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -131,7 +99,7 @@ export default function SafeRecipeList() {
             onClick={() => setShowOnlyArfidFriendly(true)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               showOnlyArfidFriendly
-                ? 'bg-white text-gray-900 shadow-sm'
+                ? 'bg-white text-gray-900 shadow-xs'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -179,7 +147,7 @@ export default function SafeRecipeList() {
                   {recipe.arfidNotes && (
                     <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <div className="flex items-start space-x-2">
-                        <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div>
