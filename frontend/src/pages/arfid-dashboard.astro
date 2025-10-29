@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ArfidStatsWidget from '../widgets/ArfidStatsWidget';
+import ProgressThisMonthWidget from '../widgets/ProgressThisMonthWidget';
 import RecentSafeFoodsWidget from '../widgets/RecentSafeFoodsWidget';
 ---
 
@@ -25,59 +26,6 @@ import RecentSafeFoodsWidget from '../widgets/RecentSafeFoodsWidget';
 		<!-- Quick Stats -->
 		<div class="container mx-auto px-4 py-8">
 			<ArfidStatsWidget client:load />
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-
-				<div class="bg-white rounded-lg shadow-md p-6">
-					<div class="flex items-center justify-between">
-						<div>
-							<p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Successful Meals</p>
-							<p class="text-2xl font-bold text-blue-600">18/21</p>
-						</div>
-						<div class="bg-blue-100 rounded-full p-3">
-							<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-							</svg>
-						</div>
-					</div>
-					<div class="mt-4">
-						<p class="text-xs text-gray-500">Last 7 days</p>
-					</div>
-				</div>
-
-				<div class="bg-white rounded-lg shadow-md p-6">
-					<div class="flex items-center justify-between">
-						<div>
-							<p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Average Energy Level</p>
-							<p class="text-2xl font-bold text-purple-600">3.8/5</p>
-						</div>
-						<div class="bg-purple-100 rounded-full p-3">
-							<svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-							</svg>
-						</div>
-					</div>
-					<div class="mt-4">
-						<p class="text-xs text-gray-500">After meals this week</p>
-					</div>
-				</div>
-
-				<div class="bg-white rounded-lg shadow-md p-6">
-					<div class="flex items-center justify-between">
-						<div>
-							<p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Challenges</p>
-							<p class="text-2xl font-bold text-orange-600">2</p>
-						</div>
-						<div class="bg-orange-100 rounded-full p-3">
-							<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-							</svg>
-						</div>
-					</div>
-					<div class="mt-4">
-						<p class="text-xs text-gray-500">Last 7 days</p>
-					</div>
-				</div>
-			</div>
 
 			<!-- Main Content Grid -->
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -94,7 +42,7 @@ import RecentSafeFoodsWidget from '../widgets/RecentSafeFoodsWidget';
 								Manage Safe Foods
 							</a>
 						</div>
-						<RecentSafeFoodsWidget client:load />
+						<RecentSafeFoodsWidget client:visible />
 						<div class="mt-6 text-center">
 							<a href="/safe-foods" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">
 								See all safe foods →
@@ -176,40 +124,7 @@ import RecentSafeFoodsWidget from '../widgets/RecentSafeFoodsWidget';
 					</div>
 
 					<!-- Progress Tracker -->
-					<div class="bg-white rounded-lg shadow-md p-6">
-						<div class="flex items-center justify-between mb-4">
-							<h3 class="text-lg font-semibold text-gray-900">Progress this month</h3>
-						</div>
-						<div class="space-y-4">
-							<div class="flex items-center justify-between">
-								<div class="flex items-center space-x-3">
-									<div class="w-3 h-3 bg-green-500 rounded-full"></div>
-									<div class="flex-1">
-										<span class="text-gray-700">Successful meals</span>
-									</div>
-								</div>
-								<span class="text-sm font-medium text-gray-900">85%</span>
-							</div>
-							<div class="flex items-center justify-between">
-								<div class="flex items-center space-x-3">
-									<div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-									<div class="flex-1">
-										<span class="text-gray-700">Average energy level</span>
-									</div>
-								</div>
-								<span class="text-sm font-medium text-gray-900">3.8/5</span>
-							</div>
-							<div class="flex items-center justify-between">
-								<div class="flex items-center space-x-3">
-									<div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-									<div class="flex-1">
-										<span class="text-gray-700">New food experiences</span>
-									</div>
-								</div>
-								<span class="text-sm font-medium text-gray-900">2</span>
-							</div>
-						</div>
-					</div>
+					<ProgressThisMonthWidget client:visible />
 				</div>
 			</div>
 

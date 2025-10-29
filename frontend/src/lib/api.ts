@@ -186,6 +186,10 @@ export interface SafeFood {
     name?: string;
     username?: string;
   };
+  // Nytt: kobling til ingrediens for næringsberegning
+  ingredientId?: string; // kobling til ingrediens-tabellen
+  defaultAmount?: number; // f.eks. 1 stk, 100g, etc.
+  defaultUnit?: string;   // "g", "ml", "stk", etc.
 }
 
 export interface CreateSafeFoodPayload {
@@ -227,10 +231,14 @@ export interface MealLog {
   id: string;
   userId: string;
   safeFoodId?: string;
-  mealDate: string; // ISO date string
-  mealType: string; // "breakfast", "lunch", "dinner", "snack"
+  ingredientId?: string; // NY: direkte logging av ingrediens
+  recipeId?: string;     // NY: logging av oppskrift
+  mealDate: string;
+  mealType: string;
   portionEaten: string; // "all", "most", "half", "few-bites", "none"
-  weightGrams?: number;
+  weightGrams?: number; // faktisk mengde spist (hvis kjent)
+  amount?: number;      // mengde (f.eks. 2 stk, 150g, 1 porsjon)
+  unit?: string;        // "g", "ml", "stk", "portion"
   energyBefore?: number; // 1-5 scale
   energyAfter?: number; // 1-5 scale
   location?: string; // "home", "school", "restaurant", etc.
@@ -644,5 +652,131 @@ export function getInstructions(recipe: Recipe): string[] {
 // Helper function to get tags
 export function getTags(recipe: Recipe): string[] {
   return safeParseJson(recipe.tags, []);
+}
+
+/**
+ * Nutrition summary type
+ */
+export interface NutritionSummary {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  // Add more fields as needed (sugar, sodium, etc)
+}
+
+/**
+ * Calculate nutrition for a meal log entry.
+ * Supports: SafeFood, Ingredient, or Recipe as source.
+ */
+export async function calculateMealNutrition(mealLog: MealLog): Promise<NutritionSummary | null> {
+  // Helper for andel spist
+  function getPortionMultiplier(portion: string): number {
+    switch (portion) {
+      case "all": return 1;
+      case "most": return 0.75;
+      case "half": return 0.5;
+      case "few-bites": return 0.2;
+      case "none": return 0;
+      default: return 1;
+    }
+  }
+  const portionMultiplier = getPortionMultiplier(mealLog.portionEaten);
+
+  // 1. SafeFood
+  if (mealLog.safeFoodId) {
+    const safeFood = await apiClient.getSafeFood(mealLog.safeFoodId);
+    if (safeFood.ingredientId) {
+      const ingredient = await apiClient.getIngredient(safeFood.ingredientId);
+      // Bruk weightGrams eller defaultAmount
+      const grams = mealLog.weightGrams ?? safeFood.defaultAmount ?? 0;
+      const factor = grams / 100 * portionMultiplier;
+      return {
+        calories: (ingredient.calories ?? 0) * factor,
+        protein: (ingredient.protein ?? 0) * factor,
+        carbs: (ingredient.carbs ?? 0) * factor,
+        fat: (ingredient.fat ?? 0) * factor,
+        fiber: (ingredient.fiber ?? 0) * factor,
+      };
+    }
+    return null;
+  }
+
+  // 2. Direkte ingrediens
+  if (mealLog.ingredientId) {
+    const ingredient = await apiClient.getIngredient(mealLog.ingredientId);
+    const grams = mealLog.weightGrams ?? mealLog.amount ?? 0;
+    const factor = grams / 100 * portionMultiplier;
+    return {
+      calories: (ingredient.calories ?? 0) * factor,
+      protein: (ingredient.protein ?? 0) * factor,
+      carbs: (ingredient.carbs ?? 0) * factor,
+      fat: (ingredient.fat ?? 0) * factor,
+      fiber: (ingredient.fiber ?? 0) * factor,
+    };
+  }
+
+  // 3. Oppskrift
+  if (mealLog.recipeId) {
+    const recipe = await apiClient.getRecipe(mealLog.recipeId);
+    // Summer næring for alle ingredienser i oppskriften
+    let total: NutritionSummary = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
+    for (const ing of recipe.ingredients) {
+      const grams = ing.unit === "g" ? ing.amount : 0; // For enkelhet, kun gram støttes her
+      const ingredient = ing.ingredient;
+      const factor = grams / 100;
+      total.calories += (ingredient.calories ?? 0) * factor;
+      total.protein += (ingredient.protein ?? 0) * factor;
+      total.carbs += (ingredient.carbs ?? 0) * factor;
+      total.fat += (ingredient.fat ?? 0) * factor;
+      total.fiber += (ingredient.fiber ?? 0) * factor;
+    }
+    // Del på antall porsjoner og multipliser med andel spist
+    const perPortion = {
+      calories: total.calories / (recipe.servings || 1),
+      protein: total.protein / (recipe.servings || 1),
+      carbs: total.carbs / (recipe.servings || 1),
+      fat: total.fat / (recipe.servings || 1),
+      fiber: total.fiber / (recipe.servings || 1),
+    };
+    return {
+      calories: perPortion.calories * portionMultiplier,
+      protein: perPortion.protein * portionMultiplier,
+      carbs: perPortion.carbs * portionMultiplier,
+      fat: perPortion.fat * portionMultiplier,
+      fiber: perPortion.fiber * portionMultiplier,
+    };
+  }
+
+  // Ingen kilde funnet
+  return null;
+}
+
+/**
+ * Aggregate total nutrition for a dag basert på meal logs.
+ * @param mealLogs Array of MealLog
+ * @returns NutritionSummary for the day
+ */
+export async function calculateDayNutrition(mealLogs: MealLog[]): Promise<NutritionSummary> {
+  const total: NutritionSummary = {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+    fiber: 0,
+  };
+
+  for (const log of mealLogs) {
+    const nutrition = await calculateMealNutrition(log);
+    if (nutrition) {
+      total.calories += nutrition.calories;
+      total.protein += nutrition.protein;
+      total.carbs += nutrition.carbs;
+      total.fat += nutrition.fat;
+      total.fiber += nutrition.fiber;
+    }
+  }
+  return total;
 }
 
