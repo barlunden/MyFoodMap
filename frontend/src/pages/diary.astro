@@ -1,8 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SafeFoodDiary from '../components/SafeFoodDiary';
+import AuthProviderIsland from '../components/AuthProviderIsland';
 ---
 
 <Layout title="Matdagbok - MyFoodMap">
-	<SafeFoodDiary client:only="react" />
+	<AuthProviderIsland client:only="react">
+		<SafeFoodDiary client:only="react" />
+	</AuthProviderIsland>
 </Layout>

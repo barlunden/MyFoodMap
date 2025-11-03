@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import SafeRecipeCreateForm from '../../components/SafeRecipeCreateForm';
+import AuthProviderIsland from '../../components/AuthProviderIsland';
 ---
 
 <Layout title="Add Recipe - MyFoodMap">
@@ -12,9 +13,11 @@ import SafeRecipeCreateForm from '../../components/SafeRecipeCreateForm';
 			</p>
 		</div>
 		
-		<SafeRecipeCreateForm 
-			client:only="react"
-			onCancel={() => window.location.href = '/recipes'}
-		/>
+		<AuthProviderIsland client:only="react">
+			<SafeRecipeCreateForm 
+				client:only="react"
+				onCancel={() => window.location.href = '/recipes'}
+			/>
+		</AuthProviderIsland>
 	</main>
 </Layout>

@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../lib/api';
+import type { Recipe as ApiRecipe } from '../lib/api';
+
+interface Ingredient {
+  id: string;
+  name: string;
+  // legg til andre felt ved behov
+}
+
+// Use the Recipe type from api for consistency
+type Recipe = ApiRecipe;
 
 interface SafeFood {
   id: string;
@@ -12,6 +22,8 @@ interface MealLog {
   id: string;
   userId: string;
   safeFoodId?: string;
+  recipeId?: string;
+  ingredientId?: string;
   mealDate: string;
   mealType: string;
   portionEaten: string;
@@ -21,17 +33,27 @@ interface MealLog {
   successFactors?: string;
   notes?: string;
   createdAt: string;
-  safeFood: SafeFood;
+  amountEatenGrams?: number;
+  safeFood?: SafeFood;
+  recipe?: Recipe;
+  ingredient?: Ingredient;
+  nutrition?: any;
 }
 
 interface MealLoggerProps {
   className?: string;
 }
 
+type MealEntityType = 'safeFood' | 'recipe' | 'ingredient';
+
+
 interface NewMealLog {
-  safeFoodId: string;
+  entityType: MealEntityType;
+  safeFoodId?: string;
+  recipeId?: string;
+  ingredientId?: string;
   mealType: string;
-  portionEaten: string;
+  amountEatenGrams: string;
   energyBefore?: number;
   energyAfter?: number;
   location?: string;
@@ -41,13 +63,18 @@ interface NewMealLog {
 
 export default function MealLogger({ className = '' }: MealLoggerProps) {
   const [safeFoods, setSafeFoods] = useState<SafeFood[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [mealLogs, setMealLogs] = useState<MealLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newMeal, setNewMeal] = useState<NewMealLog>({
+    entityType: 'safeFood',
     safeFoodId: '',
+    recipeId: '',
+    ingredientId: '',
     mealType: 'breakfast',
-    portionEaten: 'all',
+    amountEatenGrams: '',
     energyBefore: undefined,
     energyAfter: undefined,
     location: 'home',
@@ -56,20 +83,23 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
   });
 
   useEffect(() => {
-    // Hent trygge matvarer og meal logs frå backend
+    // Hent trygge matvarer, oppskrifter, ingredienser og meal logs frå backend
     Promise.all([
       apiClient.getSafeFoods(),
-      apiClient.getMealLogs({}) // evt. legg til filtrering
+      apiClient.getRecipes ? apiClient.getRecipes() : Promise.resolve([]),
+      apiClient.getIngredients ? apiClient.getIngredients() : Promise.resolve([]),
+      apiClient.getMealLogs({})
     ])
-      .then(([foods, logs]) => {
+      .then(([foods, recipes, ingredients, logs]) => {
         setSafeFoods(foods);
-        // Filter out logs where safeFood is missing to satisfy the type
-        setMealLogs(
-          logs.filter((log: any) => log.safeFood) as MealLog[]
-        );
+        setRecipes(recipes);
+        setIngredients(ingredients);
+        setMealLogs(logs as MealLog[]);
       })
       .catch(() => {
         setSafeFoods([]);
+        setRecipes([]);
+        setIngredients([]);
         setMealLogs([]);
       })
       .finally(() => setIsLoading(false));
@@ -99,11 +129,11 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
     yesterday.setDate(today.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'I dag';
+      return 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
       return 'Yesterday';
     } else {
-      return date.toLocaleDateString('nb-NO', {
+      return date.toLocaleDateString('en-GB', {
         weekday: 'short',
         day: 'numeric',
         month: 'short'
@@ -123,14 +153,11 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const selectedSafeFood = safeFoods.find(f => f.id === newMeal.safeFoodId);
-    if (!selectedSafeFood) return;
-
-    const mealToLog = {
-      safeFoodId: newMeal.safeFoodId,
+    let mealToLog: any = {
       mealDate: new Date().toISOString(),
       mealType: newMeal.mealType,
-      portionEaten: newMeal.portionEaten,
+      portionEaten: 'all', // Default to 'all' for required backend field
+      amountEatenGrams: newMeal.amountEatenGrams ? Number(newMeal.amountEatenGrams) : undefined,
       energyBefore: newMeal.energyBefore,
       energyAfter: newMeal.energyAfter,
       location: newMeal.location,
@@ -138,15 +165,27 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
       notes: newMeal.notes
     };
 
+    if (newMeal.entityType === 'safeFood') {
+      if (!newMeal.safeFoodId) return;
+      mealToLog.safeFoodId = newMeal.safeFoodId;
+    } else if (newMeal.entityType === 'recipe') {
+      if (!newMeal.recipeId) return;
+      mealToLog.recipeId = newMeal.recipeId;
+    } else if (newMeal.entityType === 'ingredient') {
+      if (!newMeal.ingredientId) return;
+      mealToLog.ingredientId = newMeal.ingredientId;
+    }
+
     try {
       const savedMeal = await apiClient.logMeal(mealToLog);
-      if (savedMeal.safeFood) {
-        setMealLogs([savedMeal as MealLog, ...mealLogs]);
-      }
+      setMealLogs([savedMeal as MealLog, ...mealLogs]);
       setNewMeal({
+        entityType: 'safeFood',
         safeFoodId: '',
+        recipeId: '',
+        ingredientId: '',
         mealType: 'breakfast',
-        portionEaten: 'all',
+        amountEatenGrams: '',
         energyBefore: undefined,
         energyAfter: undefined,
         location: 'home',
@@ -172,7 +211,7 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -197,41 +236,91 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
             <form onSubmit={handleSubmit} className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">Log new meal</h3>
-                <button
-                  type="button"
-                  onClick={() => setShowAddForm(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
+              {/* Meal Entity Type Selection */}
               <div className="space-y-6">
-                {/* Safe Food Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hvilken trygg matvare? *
+                    What are you logging? *
                   </label>
-                  <select
-                    value={newMeal.safeFoodId}
-                    onChange={(e) => setNewMeal({ ...newMeal, safeFoodId: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  >
-                    <option value="">Velg en matvare...</option>
-                    {safeFoods.map(food => (
-                      <option key={food.id} value={food.id}>
-                        {food.foodName} {food.brandPreference ? `(${food.brandPreference})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex space-x-2">
+                    <button
+                      type="button"
+                      className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${newMeal.entityType === 'safeFood' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 hover:bg-gray-50'}`}
+                      onClick={() => setNewMeal({ ...newMeal, entityType: 'safeFood', safeFoodId: '', recipeId: '', ingredientId: '' })}
+                    >Safe food</button>
+                    <button
+                      type="button"
+                      className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${newMeal.entityType === 'recipe' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 hover:bg-gray-50'}`}
+                      onClick={() => setNewMeal({ ...newMeal, entityType: 'recipe', safeFoodId: '', recipeId: '', ingredientId: '' })}
+                    >Recipe</button>
+                    <button
+                      type="button"
+                      className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${newMeal.entityType === 'ingredient' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 hover:bg-gray-50'}`}
+                      onClick={() => setNewMeal({ ...newMeal, entityType: 'ingredient', safeFoodId: '', recipeId: '', ingredientId: '' })}
+                    >Ingredient</button>
+                  </div>
                 </div>
-
-                {/* Meal Type and Portion */}
+                {newMeal.entityType === 'safeFood' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Which safe food? *
+                    </label>
+                    <select
+                      value={newMeal.safeFoodId}
+                      onChange={(e) => setNewMeal({ ...newMeal, safeFoodId: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      required
+                    >
+                      <option value="">Choose the food eaten...</option>
+                      {safeFoods.map(food => (
+                        <option key={food.id} value={food.id}>
+                          {food.foodName} {food.brandPreference ? `(${food.brandPreference})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {newMeal.entityType === 'recipe' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Which recipe? *
+                    </label>
+                    <select
+                      value={newMeal.recipeId}
+                      onChange={(e) => setNewMeal({ ...newMeal, recipeId: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      required
+                    >
+                      <option value="">Choose a recipe...</option>
+                      {recipes.map(recipe => (
+                        <option key={recipe.id} value={recipe.id}>
+                          {recipe.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {newMeal.entityType === 'ingredient' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Which ingredient? *
+                    </label>
+                    <select
+                      value={newMeal.ingredientId}
+                      onChange={(e) => setNewMeal({ ...newMeal, ingredientId: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      required
+                    >
+                      <option value="">Choose an ingredient...</option>
+                      {ingredients.map(ingredient => (
+                        <option key={ingredient.id} value={ingredient.id}>
+                          {ingredient.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {/* Meal Type and Amount */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -257,30 +346,39 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                       ))}
                     </div>
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      How much was eaten? *
+                      Amount eaten (grams or ml) *
                     </label>
-                    <div className="space-y-2">
-                      {portionOptions.map(option => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => setNewMeal({ ...newMeal, portionEaten: option.value })}
-                          className={`w-full p-2 rounded-lg border text-sm font-medium transition-colors text-left ${
-                            newMeal.portionEaten === option.value
-                              ? `border-blue-500 ${option.bg} ${option.color}`
-                              : 'border-gray-300 hover:bg-gray-50'
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={newMeal.amountEatenGrams}
+                      onChange={e => setNewMeal({ ...newMeal, amountEatenGrams: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. 200"
+                      required
+                    />
+                    <div className="text-xs text-gray-500 mt-1">
+                      {(() => {
+                        if (newMeal.entityType === 'safeFood') {
+                          const food = safeFoods.find(f => f.id === newMeal.safeFoodId);
+                          return food && food.brandPreference ? `Standard serving: ${food.brandPreference}` : '';
+                        }
+                        if (newMeal.entityType === 'recipe') {
+                          const recipe = recipes.find(r => r.id === newMeal.recipeId);
+                          return recipe && recipe.title ? `Standard serving: ${recipe.title}` : '';
+                        }
+                        if (newMeal.entityType === 'ingredient') {
+                          const ing = ingredients.find(i => i.id === newMeal.ingredientId);
+                          return ing && ing.name ? `Standard serving: ${ing.name}` : '';
+                        }
+                        return '';
+                      })()}
                     </div>
                   </div>
                 </div>
-
                 {/* Energy Levels */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -304,7 +402,6 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                       ))}
                     </div>
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Energy level after meal
@@ -327,12 +424,11 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                     </div>
                   </div>
                 </div>
-
                 {/* Location */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hvor?
-                  </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Where?
+                    </label>
                   <input
                     type="text"
                     value={newMeal.location}
@@ -341,12 +437,11 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-
                 {/* Success Factors */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hva hjalp til at dette gikk bra?
-                  </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      What helped make this meal successful?
+                    </label>
                   <input
                     type="text"
                     value={newMeal.successFactors}
@@ -355,10 +450,9 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                     Notes
                   </label>
                   <textarea
@@ -370,7 +464,6 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                   />
                 </div>
               </div>
-
               {/* Submit Buttons */}
               <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
                 <button
@@ -391,14 +484,18 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
           </div>
         </div>
       )}
-
       {/* Recent Meal Logs */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-900">Recent meals</h3>
         {mealLogs.map(log => {
           const mealTypeInfo = getMealTypeInfo(log.mealType);
           const portionStyle = getPortionStyle(log.portionEaten);
-
+          let entityLabel = '';
+          if (log.safeFood) entityLabel = log.safeFood.foodName;
+          else if (log.recipe) entityLabel = log.recipe.title;
+          else if (log.ingredient) entityLabel = log.ingredient.name;
+          // Show amount eaten
+          let amountEaten = log.amountEatenGrams || '';
           return (
             <div
               key={log.id}
@@ -412,13 +509,13 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                       <h4 className="font-semibold text-gray-900">
                         {mealTypeInfo.label} - {formatDate(log.mealDate)}
                       </h4>
-                      <p className="text-gray-600">{log.safeFood.foodName}</p>
+                      <p className="text-gray-600">{entityLabel}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${portionStyle}`}>
-                        {portionOptions.find(p => p.value === log.portionEaten)?.label}
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">
+                        {amountEaten ? `${amountEaten} g/ml` : '—'}
                       </span>
                     </div>
                     {(log.energyBefore || log.energyAfter) && (
@@ -465,6 +562,17 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                       </div>
                     )}
                   </div>
+                  {/* Vis næringsinnhold hvis tilgjengelig */}
+                  {log.nutrition && (
+                    <div className="mb-2">
+                      <span className="text-sm font-medium text-blue-700">Nutrition: </span>
+                      <span className="text-sm text-gray-600">
+                        {Object.entries(log.nutrition).map(([key, value]) => (
+                          <span key={key} className="mr-2">{key}: {String(value)}</span>
+                        ))}
+                      </span>
+                    </div>
+                  )}
                   {log.successFactors && (
                     <div className="mb-2">
                       <span className="text-sm font-medium text-green-700">Success factors: </span>
@@ -473,7 +581,7 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
                   )}
                   {log.notes && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Notater: </span>
+                      <span className="text-sm font-medium text-gray-700">Notes: </span>
                       <span className="text-sm text-gray-600">{log.notes}</span>
                     </div>
                   )}
@@ -489,7 +597,6 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
           );
         })}
       </div>
-
       {mealLogs.length === 0 && (
         <div className="text-center py-12">
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -499,6 +606,6 @@ export default function MealLogger({ className = '' }: MealLoggerProps) {
           <p className="mt-1 text-sm text-gray-500">Get started by logging your first meal.</p>
         </div>
       )}
-    </div>
+    </>
   );
 }

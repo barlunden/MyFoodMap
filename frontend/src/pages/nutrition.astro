@@ -1,10 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SafeNutritionManager from '../components/SafeNutritionManager';
+import AuthProviderIsland from '../components/AuthProviderIsland';
 ---
 
 <Layout title="Nutrition Database - RecipeScaler">
   <main>
-    <SafeNutritionManager client:load />
+    <AuthProviderIsland client:only="react">
+      <SafeNutritionManager client:load />
+    </AuthProviderIsland>
   </main>
 </Layout>

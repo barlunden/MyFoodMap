@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { AuthProvider, useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
+import { useAuthStore } from '../store/authStore';
 import AuthModal from './AuthModal';
 import SearchBar from './SearchBar';
 import UserMenu from './UserMenu';
@@ -10,8 +10,9 @@ function HeaderWithAuth({ showSearch }: { showSearch?: boolean }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   
-  // This will now be safely within the AuthProvider
-  const { isAuthenticated, isLoading } = useAuth();
+  // Bruk Zustand for auth-state
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
   const handleAuthClick = (mode: 'login' | 'register') => {
     console.log('Auth button clicked:', mode);
@@ -80,13 +81,13 @@ function HeaderWithAuth({ showSearch }: { showSearch?: boolean }) {
               <div className="flex items-center space-x-3">
                 <button 
                   onClick={() => handleAuthClick('login')}
-                  className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                  className="text-gray-600 hover:text-gray-900 font-medium transition-colors cursor-pointer"
                 >
                   Login
                 </button>
                 <button 
                   onClick={() => handleAuthClick('register')}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors  cursor-pointer font-medium"
                 >
                   Sign Up
                 </button>
@@ -212,11 +213,7 @@ function HeaderWithAuth({ showSearch }: { showSearch?: boolean }) {
   );
 }
 
-// Main component that wraps the header with its own AuthProvider
+// Main component: now just exports HeaderWithAuth directly (no AuthProvider)
 export default function SafeHeader({ showSearch = true }: { showSearch?: boolean }) {
-  return (
-    <AuthProvider>
-      <HeaderWithAuth showSearch={showSearch} />
-    </AuthProvider>
-  );
+  return <HeaderWithAuth showSearch={showSearch} />;
 }

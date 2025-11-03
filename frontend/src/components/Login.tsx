@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import React, { useEffect, useState } from 'react';
+import { useAuthStore } from '../store/authStore';
 import { validateEmail } from '../utils/validation';
 
 interface LoginProps {
@@ -11,34 +11,33 @@ export default function Login({ onClose, onSwitchToRegister }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const { login } = useAuth();
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const login = useAuthStore((state) => state.login);
+
+  useEffect(() => {
+    console.log('isAuthenticated', useAuthStore.getState().isAuthenticated);
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
     // Basic validation
     const emailValidation = validateEmail(email);
     if (!emailValidation.isValid) {
       setError(emailValidation.error || 'Please enter a valid email');
-      setIsLoading(false);
       return;
     }
 
     if (!password) {
       setError('Password is required');
-      setIsLoading(false);
       return;
     }
 
     try {
       await login(email.trim(), password);
       onClose?.();
-      // Redirect to recipes page or wherever appropriate
-      window.location.href = '/recipes';
+      /* window.location.href = '/recipes'; */
     } catch (error) {
       console.error('Login error:', error);
       if (error instanceof Error) {
@@ -46,8 +45,6 @@ export default function Login({ onClose, onSwitchToRegister }: LoginProps) {
       } else {
         setError('Login failed. Please try again.');
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 

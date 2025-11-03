@@ -237,6 +237,7 @@ export interface MealLog {
   mealType: string;
   portionEaten: string; // "all", "most", "half", "few-bites", "none"
   weightGrams?: number; // faktisk mengde spist (hvis kjent)
+  amountEatenGrams?: number; // NY: faktisk mengde spist i gram (for ARFID)
   amount?: number;      // mengde (f.eks. 2 stk, 150g, 1 porsjon)
   unit?: string;        // "g", "ml", "stk", "portion"
   energyBefore?: number; // 1-5 scale

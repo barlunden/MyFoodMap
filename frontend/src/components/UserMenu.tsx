@@ -1,20 +1,13 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 
 export default function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Try to use auth context, with fallback
-  let user, logout, isAuthenticated;
-  try {
-    const authContext = useAuth();
-    user = authContext.user;
-    logout = authContext.logout;
-    isAuthenticated = authContext.isAuthenticated;
-  } catch (error) {
-    // Fallback if not in AuthProvider context
-    return <div className="text-gray-600 text-sm">User menu unavailable</div>;
-  }
+
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   if (!isAuthenticated || !user) {
     return null;
@@ -32,7 +25,7 @@ export default function UserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors"
       >
-        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+        <div className="w-8 h-8 bg-blue-600 rounded-fulldett flex items-center justify-center">
           <span className="text-white text-sm font-medium">
             {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
           </span>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 import { validatePassword, validateEmail, validateName, type PasswordValidationResult } from '../utils/validation';
 
 interface RegisterProps {
@@ -13,10 +13,10 @@ export default function Register({ onClose, onSwitchToLogin }: RegisterProps) {
   const [name, setName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = useAuthStore((state) => state.isLoading);
   const [showPasswordHelp, setShowPasswordHelp] = useState(false);
   
-  const { register } = useAuth();
+  const register = useAuthStore((state) => state.register);
 
   // Real-time validation
   const emailValidation = useMemo(() => validateEmail(email), [email]);
@@ -55,17 +55,15 @@ export default function Register({ onClose, onSwitchToLogin }: RegisterProps) {
       return;
     }
 
-    setIsLoading(true);
+
 
     try {
       await register(email.trim(), password, name.trim() || undefined);
       onClose?.();
-      // Redirect to recipes page
       window.location.href = '/recipes';
     } catch (error) {
       console.error('Registration error:', error);
       if (error instanceof Error) {
-        // Handle validation errors from backend
         if (error.message.includes('Validation failed')) {
           setError('Please check your input and try again');
         } else {
@@ -74,8 +72,6 @@ export default function Register({ onClose, onSwitchToLogin }: RegisterProps) {
       } else {
         setError('Registration failed. Please try again.');
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -1,10 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SafeFoodDiary from '../components/SafeFoodDiary';
+import AuthProviderIsland from '../components/AuthProviderIsland';
 ---
 
 <Layout title="Food Diary - RecipeScaler">
   <main>
-    <SafeFoodDiary client:load />
+    <AuthProviderIsland client:only="react">
+      <SafeFoodDiary client:load />
+    </AuthProviderIsland>
   </main>
 </Layout>
